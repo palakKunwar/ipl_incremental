@@ -28,9 +28,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userLoginServiceImpl).passwordEncoder(passwordEncoder());
+        auth.userDetailsService(userLoginServiceImpl).passwordEncoder(passwordEncoder);
     }
 
     @Override
@@ -60,8 +63,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
-    }
+    // @Bean
+    // public PasswordEncoder passwordEncoder() {
+    //     return NoOpPasswordEncoder.getInstance();
+    // }
 }
