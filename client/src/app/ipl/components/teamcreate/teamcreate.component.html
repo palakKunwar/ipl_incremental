@@ -1,0 +1,63 @@
+<div class="team-form-container">
+  <h2>Create Team</h2>
+
+  <form [formGroup]="teamForm" (ngSubmit)="onSubmit()">
+
+    <!-- Team ID -->
+    <div>
+      <label>Team ID:</label>
+      <input type="number" formControlName="teamId" readonly />
+    </div>
+
+    <!-- Team Name -->
+    <div>
+      <label>Team Name:</label>
+      <input type="text" formControlName="teamName" />
+      <small *ngIf="teamForm.get('teamName')?.invalid && teamForm.get('teamName')?.touched">
+        Team Name is required
+      </small>
+    </div>
+
+    <!-- Location -->
+    <div>
+      <label>Location:</label>
+      <input type="text" formControlName="location" />
+      <small *ngIf="teamForm.get('location')?.invalid && teamForm.get('location')?.touched">
+        Location is required
+      </small>
+    </div>
+
+    <!-- Owner Name -->
+    <div>
+      <label>Owner Name:</label>
+      <input type="text" formControlName="ownerName" />
+      <small *ngIf="teamForm.get('ownerName')?.invalid && teamForm.get('ownerName')?.touched">
+        Owner Name must be at least 2 characters
+      </small>
+    </div>
+
+    <!-- Establishment Year -->
+    <div>
+      <label>Establishment Year:</label>
+      <input type="number" formControlName="establishmentYear" />
+      <small *ngIf="teamForm.get('establishmentYear')?.invalid && teamForm.get('establishmentYear')?.touched">
+        Invalid Year
+      </small>
+    </div>
+
+    <!-- Buttons -->
+    <button type="submit">Create Team</button>
+    <button type="button" (click)="resetForm()">Reset</button>
+
+  </form>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="success">
+    {{ successMessage }}
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error">
+    {{ errorMessage }}
+  </div>
+</div>

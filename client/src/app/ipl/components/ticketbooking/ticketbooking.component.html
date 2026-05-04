@@ -1,0 +1,77 @@
+<div class="ticket-booking-container">
+  <h2>Book Tickets</h2>
+
+  <form [formGroup]="ticketBookingForm" (ngSubmit)="onSubmit()">
+
+    <!-- Booking ID -->
+    <div>
+      <label for="bookingId">Booking ID</label>
+      <input
+        id="bookingId"
+        type="number"
+        formControlName="bookingId"
+        placeholder="Enter Booking ID"
+      />
+      <div *ngIf="ticketBookingForm.get('bookingId')?.invalid && ticketBookingForm.get('bookingId')?.touched" class="error">
+        <small>Booking ID is required.</small>
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div>
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        formControlName="email"
+        placeholder="Enter Email"
+      />
+      <div *ngIf="ticketBookingForm.get('email')?.invalid && ticketBookingForm.get('email')?.touched" class="error">
+        <small>Email is required and must be valid.</small>
+      </div>
+    </div>
+
+    <!-- Match ID -->
+    <div>
+      <label for="matchId">Match</label>
+      <select id="matchId" formControlName="matchId">
+        <option value="">Select a Match</option>
+        <option *ngFor="let match of matches" [value]="match.matchId">
+          {{ match.firstTeam.teamName }} vs {{ match.secondTeam.teamName }}
+        </option>
+      </select>
+      <div *ngIf="ticketBookingForm.get('matchId')?.invalid && ticketBookingForm.get('matchId')?.touched" class="error">
+        <small>Match selection is required.</small>
+      </div>
+    </div>
+
+    <!-- Number of Tickets -->
+    <div>
+      <label for="numberOfTickets">Number of Tickets</label>
+      <input
+        id="numberOfTickets"
+        type="number"
+        formControlName="numberOfTickets"
+        placeholder="Enter Number of Tickets"
+      />
+      <div *ngIf="ticketBookingForm.get('numberOfTickets')?.invalid && ticketBookingForm.get('numberOfTickets')?.touched" class="error">
+        <small>Number of tickets must be at least 1.</small>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <button type="submit" [disabled]="ticketBookingForm.invalid">Book Tickets</button>
+    <button type="button" (click)="resetForm()">Reset</button>
+
+    <a routerLink="/ipl" class="task-list">Dashboard</a>
+  </form>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="success">
+    <p>{{ successMessage }}</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="error">
+    <p>{{ errorMessage }}</p>
+  </div>
+</div>

@@ -1,0 +1,23 @@
+<h2>Login</h2>
+
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+  <label>Username</label>
+  <input type="text" formControlName="username" />
+  <div *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.invalid">
+    Username should not contain special characters.
+  </div>
+
+  <label>Password</label>
+  <input type="password" formControlName="password" />
+  <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+    Password must be at least 8 characters, one capital letter and one number.
+  </div>
+
+  <br />
+
+  <button type="submit">Login</button>
+</form>
+
+<p *ngIf="successMessage">{{ successMessage }}</p>
+<p *ngIf="errorMessage">{{ errorMessage }}</p>

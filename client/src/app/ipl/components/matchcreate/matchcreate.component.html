@@ -1,0 +1,132 @@
+<div class="-form-container">
+  <h2>Create Match</h2>
+
+  <form [formGroup]="matchForm" (ngSubmit)="onSubmit()">
+
+    <!-- Match ID -->
+    <div>
+      <label for="matchId">Match ID</label>
+      <input
+        id="matchId"
+        type="number"
+        formControlName="matchId"
+        placeholder="Enter Match ID"
+      />
+      <div *ngIf="matchForm.get('matchId')?.invalid && matchForm.get('matchId')?.touched" class="error">
+        <small>Match ID is required.</small>
+      </div>
+    </div>
+
+    <!-- First Team ID -->
+    <div>
+      <label for="firstTeamId">First Team</label>
+      <select id="firstTeamId" formControlName="firstTeamId">
+        <option value="">Select a Team</option>
+        <option *ngFor="let team of teams" [value]="team.teamId">
+          {{ team.teamName }}
+        </option>
+      </select>
+      <div *ngIf="matchForm.get('firstTeamId')?.invalid && matchForm.get('firstTeamId')?.touched" class="error">
+        <small>First team is required.</small>
+      </div>
+    </div>
+
+    <!-- Second Team ID -->
+    <div>
+      <label for="secondTeamId">Second Team</label>
+      <select id="secondTeamId" formControlName="secondTeamId">
+        <option value="">Select a Team</option>
+        <option *ngFor="let team of teams" [value]="team.teamId">
+          {{ team.teamName }}
+        </option>
+      </select>
+      <div *ngIf="matchForm.get('secondTeamId')?.invalid && matchForm.get('secondTeamId')?.touched" class="error">
+        <small>Second team is required.</small>
+      </div>
+    </div>
+
+    <!-- Match Date -->
+    <div>
+      <label for="matchDate">Match Date</label>
+      <input
+        id="matchDate"
+        type="date"
+        formControlName="matchDate"
+      />
+      <div *ngIf="matchForm.get('matchDate')?.invalid && matchForm.get('matchDate')?.touched" class="error">
+        <small>Match date is required.</small>
+      </div>
+    </div>
+
+    <!-- Venue -->
+    <div>
+      <label for="venue">Venue</label>
+      <input
+        id="venue"
+        type="text"
+        formControlName="venue"
+        placeholder="Enter Venue"
+      />
+      <div *ngIf="matchForm.get('venue')?.invalid && matchForm.get('venue')?.touched" class="error">
+        <small>Venue is required.</small>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div>
+      <label for="result">Result</label>
+      <input
+        id="result"
+        type="text"
+        formControlName="result"
+        placeholder="Enter Result"
+      />
+      <div *ngIf="matchForm.get('result')?.invalid && matchForm.get('result')?.touched" class="error">
+        <small>Result is required.</small>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div>
+      <label for="status">Status</label>
+      <input
+        id="status"
+        type="text"
+        formControlName="status"
+        placeholder="Enter Status"
+      />
+      <div *ngIf="matchForm.get('status')?.invalid && matchForm.get('status')?.touched" class="error">
+        <small>Status is required.</small>
+      </div>
+    </div>
+
+    <!-- Winner Team ID -->
+    <div>
+      <label for="winnerTeamId">Winner Team</label>
+      <select id="winnerTeamId" formControlName="winnerTeamId">
+        <option value="">Select a Team</option>
+        <option *ngFor="let team of teams" [value]="team.teamId">
+          {{ team.teamName }}
+        </option>
+      </select>
+      <div *ngIf="matchForm.get('winnerTeamId')?.invalid && matchForm.get('winnerTeamId')?.touched" class="error">
+        <small>Winner team is required.</small>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <button type="submit" [disabled]="matchForm.invalid">Create Match</button>
+    <button type="button" (click)="resetForm()">Reset</button>
+
+    <a routerLink="/ipl" class="task-list">Dashboard</a>
+  </form>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="success">
+    <p>{{ successMessage }}</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="error">
+    <p>{{ errorMessage }}</p>
+  </div>
+</div>
