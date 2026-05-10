@@ -1,21 +1,31 @@
-import { Component, OnInit, Optional } from "@angular/core";
-import { AuthService } from "../../services/auth.service";
-
+import { Component, OnInit } from '@angular/core';
+ 
+import { Router } from '@angular/router';
+ 
 @Component({
-  selector: "app-logout",
-  templateUrl: "./logout.component.html",
-  styleUrls: ["./logout.component.scss"]
+ 
+  selector: 'app-logout',
+ 
+  templateUrl: './logout.component.html',
+ 
+  styleUrls: ['./logout.component.scss']
+ 
 })
+ 
 export class LogoutComponent implements OnInit {
-  message: string = "";
-
-  constructor(@Optional() private authService: AuthService) {}
-
+ 
+  constructor(private router: Router) { }
+ 
   ngOnInit(): void {
-    if (this.authService) {
-      this.authService.logout();
-    }
-
-    this.message = "Logout successful!";
+ 
   }
+ 
+  logout(): void {
+ 
+    localStorage.clear()
+ 
+    this.router.navigate(["/auth/login"]);
+ 
+  }
+ 
 }

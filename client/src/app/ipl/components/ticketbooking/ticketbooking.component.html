@@ -1,30 +1,82 @@
-<div class="ticket-booking-container">
-<h2>Book Tickets</h2>
-<form [formGroup]="ticketBookingForm" (ngSubmit)="onSubmit()">  
-<div>
-<label for="email">Email</label>
-<input id="email" formControlName="email" type="email" placeholder="Enter Email">
-</div>
-<div>
-<label for="match">Match </label>
-<select formControlName="match">
-<option value="">Select a Match</option>
-<option *ngFor="let match of matches" [ngValue]="match">
-              {{ match.firstTeam?.teamName }} vs {{ match.secondTeam?.teamName }}
-</option>
-</select>
-</div>
-<div>
-<label for="numberOfTickets">Number of Tickets</label>
-<input id="numberOfTickets" formControlName="numberOfTickets" type="number" placeholder="Enter Number of Tickets">
-</div>
-<button type="submit" [disabled]="ticketBookingForm.invalid">Book Tickets</button>
-<a routerLink="/ipl" class="task-list" class="task-list">Dashboard</a>
-</form>
-<div *ngIf="successMessage" class="success">
-<p>{{ successMessage }}</p>
-</div>
-<div *ngIf="errorMessage" class="error">
-<p>{{ errorMessage }}</p>
-</div>
+<div class="page-container">
+
+  <h2 class="page-title">Book Tickets</h2>
+
+  <div class="card ticket-booking-container">
+    <form [formGroup]="ticketBookingForm" (ngSubmit)="onSubmit()" class="form-grid">
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          id="email"
+          formControlName="email"
+          type="email"
+          placeholder="username"
+          readonly
+          class="readonly-field">
+      </div>
+
+      <!-- Match -->
+      <div class="form-group">
+        <label for="match">Match</label>
+        <select formControlName="match">
+          <option value="">Select a Match</option>
+          <option *ngFor="let match of matches" [ngValue]="match">
+            {{ match.firstTeam.teamName }} vs {{ match.secondTeam.teamName }} ({{ match.matchDate | date }})
+          </option>
+        </select>
+
+        <div *ngIf="ticketBookingForm.get('match')?.invalid && ticketBookingForm.get('match')?.touched" class="error">
+          <small>Please select a match.</small>
+        </div>
+      </div>
+
+      <!-- Tickets -->
+      <div class="form-group">
+        <label for="numberOfTickets">
+          Number of Tickets <span class="hint">(max 10)</span>
+        </label>
+
+        <input 
+          id="numberOfTickets"
+          formControlName="numberOfTickets"
+          type="number"
+          placeholder="Enter number (1-10)"
+          min="1"
+          max="10">
+
+        <div *ngIf="ticketBookingForm.get('numberOfTickets')?.invalid && ticketBookingForm.get('numberOfTickets')?.touched" class="error">
+          <small *ngIf="ticketBookingForm.get('numberOfTickets')?.hasError('required')">
+            Number of tickets is required.
+          </small>
+          <small *ngIf="ticketBookingForm.get('numberOfTickets')?.hasError('min')">
+            Minimum 1 ticket required.
+          </small>
+          <small *ngIf="ticketBookingForm.get('numberOfTickets')?.hasError('max')">
+            Maximum 10 tickets allowed.
+          </small>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions form-full">
+        <button type="submit" [disabled]="ticketBookingForm.invalid">
+          Book Tickets
+        </button>
+        <a routerLink="/ipl" class="task-list">Dashboard</a>
+      </div>
+
+    </form>
+
+    <!-- Messages -->
+    <div *ngIf="successMessage" class="success">
+      {{ successMessage }}
+    </div>
+
+    <div *ngIf="errorMessage" class="error">
+      {{ errorMessage }}
+    </div>
+
+  </div>
 </div>

@@ -1,77 +1,105 @@
-<div class="match-form-container">
-<h2>Update Match</h2>
-<form [formGroup]="matchForm" (ngSubmit)="onSubmit()">
-<div>
-<label for="firstTeam">First Team</label>
-<select id="firstTeam" formControlName="firstTeam">
-<option value="">Select a Team</option>
-<option *ngFor="let team of teams" [ngValue]="team">
+<div class="page-container">
+  <h2 class="page-title">Edit Match</h2>
+
+  <div class="card">
+    <form [formGroup]="matchForm" (ngSubmit)="onSubmit()" class="form-grid">
+
+      <!-- First Team -->
+      <div class="form-group">
+        <label>First Team</label>
+        <select formControlName="firstTeam">
+          <option value="">Select a Team</option>
+          <option *ngFor="let team of teams" [ngValue]="team">
             {{ team.teamName }}
-</option>
-</select>
-<div *ngIf="matchForm.get('firstTeam')?.invalid && matchForm.get('firstTeam')?.touched" class="error">
-<small>First team selection is required.</small>
-</div>
-</div>
-<div>
-<label for="secondTeam">Second Team</label>
-<select id="secondTeam" formControlName="secondTeam">
-<option value="">Select a Team</option>
-<option *ngFor="let team of teams" [ngValue]="team">
+          </option>
+        </select>
+        <div class="error" *ngIf="matchForm.get('firstTeam')?.invalid && matchForm.get('firstTeam')?.touched">
+          First team is required.
+        </div>
+      </div>
+
+      <!-- Second Team -->
+      <div class="form-group">
+        <label>Second Team</label>
+        <select formControlName="secondTeam">
+          <option value="">Select a Team</option>
+          <option *ngFor="let team of teams" [ngValue]="team">
             {{ team.teamName }}
-</option>
-</select>
-<div *ngIf="matchForm.get('secondTeam')?.invalid && matchForm.get('secondTeam')?.touched" class="error">
-<small>Second team selection is required.</small>
-</div>
-</div>
-<div>
-<label for="matchDate">Match Date</label>
-<input id="matchDate" formControlName="matchDate" type="date" placeholder="Enter Match Date">
-<div *ngIf="matchForm.get('matchDate')?.invalid && matchForm.get('matchDate')?.touched" class="error">
-<small>Match date is required.</small>
-</div>
-</div>
-<div>
-<label for="venue">Venue</label>
-<input id="venue" formControlName="venue" type="text" placeholder="Enter Venue">
-<div *ngIf="matchForm.get('venue')?.invalid && matchForm.get('venue')?.touched" class="error">
-<small>Venue is required.</small>
-</div>
-</div>
-<div>
-<label for="result">Result</label>
-<input id="result" formControlName="result" type="text" placeholder="Enter Result">
-<div *ngIf="matchForm.get('result')?.invalid && matchForm.get('result')?.touched" class="error">
-<small>Result is required.</small>
-</div>
-</div>
-<div>
-<label for="status">Status</label>
-<input id="status" formControlName="status" type="text" placeholder="Enter Status">
-<div *ngIf="matchForm.get('status')?.invalid && matchForm.get('status')?.touched" class="error">
-<small>Status is required.</small>
-</div>
-</div>
-<div>
-<label for="winnerTeam">Winner Team</label>
-<select id="winnerTeam" formControlName="winnerTeam">
-<option value="">Select a Team</option>
-<option *ngFor="let team of teams" [ngValue]="team">
+          </option>
+        </select>
+        <div class="error" *ngIf="matchForm.get('secondTeam')?.invalid && matchForm.get('secondTeam')?.touched">
+          Second team is required.
+        </div>
+      </div>
+
+      <!-- Match Date -->
+      <div class="form-group">
+        <label>Match Date</label>
+        <input type="date" formControlName="matchDate">
+        <div class="error" *ngIf="matchForm.get('matchDate')?.invalid && matchForm.get('matchDate')?.touched">
+          Match date is required.
+        </div>
+      </div>
+
+      <!-- Venue -->
+      <div class="form-group">
+        <label>Venue</label>
+        <input type="text"
+               formControlName="venue"
+               placeholder="Enter Venue (letters only)"
+               (keypress)="blockNumbers($event)">
+        <div class="error" *ngIf="matchForm.get('venue')?.invalid && matchForm.get('venue')?.touched">
+          <span *ngIf="matchForm.get('venue')?.hasError('required')">Venue is required.</span>
+          <span *ngIf="matchForm.get('venue')?.hasError('pattern')">Only letters allowed.</span>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div class="form-group">
+        <label>Result</label>
+        <input type="text" formControlName="result" placeholder="Enter Result">
+      </div>
+
+      <!-- Status -->
+      <div class="form-group">
+        <label>Status</label>
+        <select formControlName="status">
+          <option value="">Select Status</option>
+          <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+        </select>
+        <div class="error" *ngIf="matchForm.get('status')?.invalid && matchForm.get('status')?.touched">
+          Status is required.
+        </div>
+      </div>
+
+      <!-- Winner Team -->
+      <div class="form-group full-width">
+        <label>Winner Team (optional)</label>
+        <select formControlName="winnerTeam">
+          <option [ngValue]="null">None / TBD</option>
+          <option *ngFor="let team of teams" [ngValue]="team">
             {{ team.teamName }}
-</option>
-</select>
-<div *ngIf="matchForm.get('winnerTeam')?.invalid && matchForm.get('winnerTeam')?.touched" class="error">
-<small>Please select a winner team.</small>
-</div>
-</div>
-<button type="submit">Update Match</button>
-<a routerLink="/ipl" class="task-list" class="task-list">Dashboard</a>
-</form>
-<div *ngIf="successMessage" class="success">
-<p>{{ successMessage }}</p>
-</div>
-<div *ngIf="errorMessage" class="error">
-<p>{{ errorMessage }}</p>
-</div>
+          </option>
+        </select>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="submit" [disabled]="matchForm.invalid">
+          Update Match
+        </button>
+        <a routerLink="/ipl" class="link-btn">Dashboard</a>
+      </div>
+
+    </form>
+
+    <!-- Messages -->
+    <div *ngIf="successMessage" class="success-msg">
+      {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="error-msg">
+      {{ errorMessage }}
+    </div>
+
+  </div>
 </div>

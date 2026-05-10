@@ -5,6 +5,7 @@ import { Cricketer } from '../../types/Cricketer';
 import { Team } from '../../types/Team';
 import { Vote } from '../../types/Vote';
 import { HttpErrorResponse } from '@angular/common/http';
+
 @Component({
   selector: 'app-vote',
   templateUrl: './vote.component.html',
@@ -17,53 +18,54 @@ export class VoteComponent implements OnInit {
   errorMessage: string | null = null;
   teams: Team[] = [];
   cricketers: Cricketer[] = [];
+  userEmail: string = '';
+
   constructor(
     private formBuilder: FormBuilder,
     private iplService: IplService
   ) {}
+
   ngOnInit(): void {
+    this.userEmail = localStorage.getItem('email') || '';
     this.loadTeams();
     this.loadCricketers();
     this.voteForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: [this.userEmail],
       category: ['', Validators.required],
       cricketer: [null],
       team: [null]
     });
-    // Subscribe to category changes and update validators accordingly
     this.voteForm.get('category')?.valueChanges.subscribe((category) => {
       this.updateValidators(category);
     });
   }
+
   updateValidators(category: string): void {
     const cricketerControl = this.voteForm.get('cricketer');
     const teamControl = this.voteForm.get('team');
     cricketerControl?.clearValidators();
     teamControl?.clearValidators();
-    // If category is Cricketer, make cricketer required, and clear team
     if (category === 'Cricketer') {
       cricketerControl?.setValidators([Validators.required]);
-      teamControl?.clearValidators();
-    } 
-    // If category is Team, make team required, and clear cricketer
-    else if (category === 'Team') {
+    } else if (category === 'Team') {
       teamControl?.setValidators([Validators.required]);
-      cricketerControl?.clearValidators();
     }
-    // Update the value and validity for both controls
     cricketerControl?.updateValueAndValidity();
     teamControl?.updateValueAndValidity();
   }
+
   loadTeams(): void {
     this.iplService.getAllTeams().subscribe((teams) => {
       this.teams = teams;
     });
   }
+
   loadCricketers(): void {
     this.iplService.getAllCricketers().subscribe((cricketers) => {
       this.cricketers = cricketers;
     });
   }
+
   onSubmit(): void {
     if (this.voteForm.valid) {
       this.castVote();
@@ -72,31 +74,30 @@ export class VoteComponent implements OnInit {
       this.successMessage = null;
     }
   }
+
   private castVote(): void {
     this.iplService.createVote(this.voteForm.value).subscribe(
       (response: Vote) => {
-        this.successMessage = 'Vote casted successfully!';
+        this.successMessage = 'Vote cast successfully!';
         this.errorMessage = null;
-        this.resetForm();
+        this.voteForm.patchValue({ category: '', cricketer: null, team: null });
       },
       (error: HttpErrorResponse) => {
         this.handleError(error);
       }
     );
   }
-  resetForm(): void {
-    this.voteForm.reset();
-  }
+
   private handleError(error: HttpErrorResponse): void {
     if (error.error instanceof ErrorEvent) {
       this.errorMessage = `Client-side error: ${error.error.message}`;
     } else {
-      this.errorMessage = `Server-side error: ${error.status} ${error.message}`;
       if (error.status === 400) {
-        this.errorMessage = 'Bad request. Please check your input.';
+        this.errorMessage = 'You have already voted in this category. Each user can only vote once per cricketer/team.';
+      } else {
+        this.errorMessage = `Error: ${error.status} ${error.message}`;
       }
     }
     this.successMessage = null;
-    console.error('An error occurred:', this.errorMessage);
   }
 }

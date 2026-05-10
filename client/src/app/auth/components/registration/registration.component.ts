@@ -1,130 +1,77 @@
-// import { Component, OnInit } from "@angular/core";
-// import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-// import { AuthService } from "../../services/auth.service";
-
-// @Component({
-//   selector: "app-registration",
-//   templateUrl: "./registration.component.html",
-//   styleUrls: ["./registration.component.scss"]
-// })
-// export class RegistrationComponent implements OnInit {
-//   registrationForm!: FormGroup;
-//   successMessage: string = "";
-//   errorMessage: string = "";
-
-//   constructor(
-//     private fb: FormBuilder,
-//     private authService: AuthService
-//   ) {}
-
-//   ngOnInit(): void {
-//     this.registrationForm = this.fb.group({
-//       fullName: ["", Validators.required],
-//       username: ["", [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+$/)]],
-//       email: ["", [Validators.required, Validators.email]],
-//       password: ["", [Validators.required, Validators.pattern(/^(?=.*[A-Z])(?=.*\d).{8,}$/)]]
-//     });
-//   }
-
-//   onSubmit(): void {
-//     this.successMessage = "";
-//     this.errorMessage = "";
-
-//     if (this.registrationForm.invalid) {
-//       this.errorMessage = "Please fill out all required fields correctly.";
-//       this.registrationForm.markAllAsTouched();
-//       return;
-//     }
-
-//     this.authService.createUser(this.registrationForm.value).subscribe({
-//       next: () => {
-//         this.successMessage = "Registration successful!";
-//         this.resetForm();
-//         this.successMessage = "Registration successful!";
-//       },
-//       error: (error) => {
-//         this.errorMessage =
-//           error?.error?.message || "Please fill out all required fields correctly.";
-//       }
-//     });
-//   }
-
-//   resetForm(): void {
-//     this.registrationForm.reset({
-//       fullName: "",
-//       username: "",
-//       email: "",
-//       password: ""
-//     });
-
-//     this.errorMessage = "";
-//   }
-// }
-
-
-import { Component, OnInit } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { AuthService } from "../../services/auth.service";
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: "app-registration",
-  templateUrl: "./registration.component.html",
-  styleUrls: ["./registration.component.scss"]
+  selector: 'app-registration',
+  templateUrl: './registration.component.html',
+  styleUrls: ['./registration.component.scss']
 })
 export class RegistrationComponent implements OnInit {
   registrationForm!: FormGroup;
-  successMessage: string = "";
-  errorMessage: string = "";
+  successMessage: string | null = null;
+  errorMessage: string | null = null;
 
   constructor(
-    private fb: FormBuilder,
-    private authService: AuthService
-  ) {}
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
-    this.registrationForm = this.fb.group({
-      username: ["", [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+$/)]],
-      password: ["", [Validators.required, Validators.pattern(/^(?=.*[A-Z])(?=.*\d).{8,}$/)]],
-      fullName: ["", Validators.required],
-      email: ["", [Validators.required, Validators.email]],
-      role: ["USER", Validators.required]
+    this.registrationForm = this.formBuilder.group({
+      fullName: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)]],
+      username: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+$/)]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', [Validators.required]],   // ✅ added
+      email: ['', [Validators.required, Validators.email]],
+      role: ['', [Validators.required]],
+    }, {
+      validators: this.passwordMatchValidator   // ✅ add validator
     });
+  }
+
+
+
+  passwordMatchValidator(form: FormGroup) {
+    const password = form.get('password')?.value;
+    const confirmPassword = form.get('confirmPassword')?.value;
+
+    if (password !== confirmPassword) {
+      return { passwordMismatch: true };
+    }
+    return null;
   }
 
   onSubmit(): void {
-    this.successMessage = "";
-    this.errorMessage = "";
+    if (this.registrationForm.valid) {
 
-    if (this.registrationForm.invalid) {
-      this.errorMessage = "Please fill out all required fields correctly.";
-      this.registrationForm.markAllAsTouched();
-      return;
+      const formData = { ...this.registrationForm.value };
+      delete formData.confirmPassword; // ✅ remove before API
+
+      this.authService.createUser(formData).subscribe(
+        response => {
+          this.successMessage = 'Registration successful! Redirecting to login...';
+          this.errorMessage = null;
+          this.registrationForm.reset();
+
+          setTimeout(() => {
+            this.router.navigate(['/auth/login']);
+          }, 1500);
+        },
+       error => {
+
+  this.errorMessage =
+    error?.error?.message ||
+    error?.message ||
+    'Registration failed';
+
+  this.successMessage = null;
+}
+      );
+    } else {
+      this.errorMessage = 'Please fill out the form correctly.';
     }
-
-    this.authService.createUser(this.registrationForm.value).subscribe({
-      next: () => {
-        this.successMessage = "Registration successful!";
-        this.errorMessage = "";
-        this.resetForm();
-        this.successMessage = "Registration successful!";
-      },
-      error: (error) => {
-        this.errorMessage =
-          error?.error?.message || "Please fill out all required fields correctly.";
-        this.successMessage = "";
-      }
-    });
-  }
-
-  resetForm(): void {
-    this.registrationForm.reset({
-      username: "",
-      password: "",
-      fullName: "",
-      email: "",
-      role: "USER"
-    });
-
-    this.errorMessage = "";
   }
 }

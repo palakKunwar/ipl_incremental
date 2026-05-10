@@ -39,37 +39,65 @@ import org.springframework.web.server.ResponseStatusException;
  
  
 @RestController
+ 
 @RequestMapping("/user")
+ 
 public class UserLoginController {
+ 
     @Autowired
+ 
     UserLoginServiceImpl userLoginService;
+ 
     @Autowired
+ 
     AuthenticationManager authenticationManager;
+ 
     @Autowired
+ 
     JwtUtil jwtUtil;
+ 
     @PostMapping("/register")
+ 
     public ResponseEntity<?> registerUser(@RequestBody User user) {
+ 
         try{
+ 
             return ResponseEntity.ok(userLoginService.createUser(user));
+ 
         } catch(Exception ex) {
+ 
             return new ResponseEntity<>(ex.getMessage() , HttpStatus.CONFLICT);
+ 
         }
+ 
     }
+ 
     @PostMapping("/login")
+ 
     public ResponseEntity loginUser(@RequestBody LoginRequest loginRequest) {
+ 
         try{
+ 
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+ 
         } catch(AuthenticationException e) {
+ 
              throw new ResponseStatusException(HttpStatus.UNAUTHORIZED , "Invalid username or password" ,e);
+ 
         }
  
         final UserDetails userDetails = userLoginService.loadUserByUsername(loginRequest.getUsername());
+ 
         User foundUser = userLoginService.getUserByUsername(loginRequest.getUsername());
+ 
         final String token = jwtUtil.generateToken(loginRequest.getUsername());
+ 
         String role = foundUser.getRole();
+ 
         Integer userId = foundUser.getUserId();
+ 
         System.out.println("User Roles: " + role);
-
+ 
         return ResponseEntity.ok(new LoginResponse(token, role, userId));
  
     }

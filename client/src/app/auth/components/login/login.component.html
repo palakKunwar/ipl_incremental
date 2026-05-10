@@ -1,46 +1,213 @@
-<div class="login-form-container">
-  <h2>Login</h2>
+<div class="login-page">
 
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="username">Username</label>
-      <input id="username" type="text" formControlName="username" />
-      <div
-        class="validation-error"
-        *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
-      >
-        Username is required and should not contain special characters.
+  <!-- Background Overlay -->
+
+  <div class="bg-overlay"></div>
+
+  <div class="login-layout">
+
+    <!-- LEFT SECTION -->
+
+    <div class="intro-panel">
+
+      <div class="intro-content">
+
+        <div class="intro-badge">
+          NEXT GEN SPORTS PLATFORM
+        </div>
+
+        <h1 class="intro-title">
+          <span class="highlight">  IPL</span>
+        </h1>
+
+        <p class="intro-desc">
+          Experience a smarter way to manage cricket operations with live analytics, player performance tracking, secure ticket handling and interactive fan engagement.
+        </p>
+
+        <div class="intro-features">
+
+          <div class="feature-item">
+            🏏 Smart Team & Player Management
+          </div>
+
+          <div class="feature-item">
+            🎟️ Online Ticket Booking System
+          </div>
+
+          <div class="feature-item">
+            🏆 Fan Voting & Tournament Insights
+          </div>
+
+        </div>
+
+        <div class="intro-tagline">
+          Building a smarter digital cricket experience.
+        </div>
+
       </div>
+
     </div>
 
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input id="password" type="password" formControlName="password" />
-      <div
-        class="validation-error"
-        *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-      >
-        Password must be at least 8 characters and contain one capital letter and one number.
+    <!-- RIGHT SECTION -->
+
+    <div class="login-card-wrapper">
+
+      <div class="login-form-container">
+
+        <h2 class="card-title">
+          Welcome Back
+        </h2>
+
+        <p class="login-subtitle">
+          Sign in to continue to your dashboard
+        </p>
+
+        <!-- ROLE BUTTONS -->
+
+        <div class="login-options">
+
+          <button
+            type="button"
+            class="role-btn"
+            [class.active]="selectedRole === 'USER'"
+            (click)="selectRole('USER')">
+
+            👤 User Portal
+
+          </button>
+
+          <button
+            type="button"
+            class="role-btn"
+            [class.active]="selectedRole === 'ADMIN'"
+            (click)="selectRole('ADMIN')">
+
+            🔐 Admin Portal
+
+          </button>
+
+        </div>
+
+        <!-- LOGIN FORM -->
+
+        <form
+          [formGroup]="loginForm"
+          (ngSubmit)="onSubmit()"
+          class="login-form"
+          *ngIf="selectedRole">
+
+          <p class="role-label">
+
+            Active Role:
+            <strong>{{ selectedRole }}</strong>
+
+            <span
+              class="change-link"
+              (click)="selectedRole = null">
+
+              Switch
+
+            </span>
+
+          </p>
+
+          <!-- USERNAME -->
+
+          <div class="form-group">
+
+            <label for="username">
+              Username
+            </label>
+
+            <input
+              id="username"
+              formControlName="username"
+              type="text"
+              placeholder="Enter Username" />
+
+            <div
+              *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+              class="error">
+
+              <small *ngIf="loginForm.get('username')?.hasError('required')">
+                Username is required.
+              </small>
+
+              <small *ngIf="loginForm.get('username')?.hasError('pattern')">
+                Username cannot contain special characters.
+              </small>
+
+            </div>
+
+          </div>
+
+          <!-- PASSWORD -->
+
+          <div class="form-group">
+
+            <label for="password">
+              Password
+            </label>
+
+            <input
+              id="password"
+              formControlName="password"
+              type="password"
+              placeholder="Enter Password" />
+
+            <div
+              *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+              class="error">
+
+              <small *ngIf="loginForm.get('password')?.hasError('required')">
+                Password is required.
+              </small>
+
+              <small *ngIf="loginForm.get('password')?.hasError('minlength')">
+                Password must be at least 8 characters long.
+              </small>
+
+            </div>
+
+          </div>
+
+          <!-- LOGIN BUTTON -->
+
+          <button
+            type="submit"
+            class="submit-btn"
+            [disabled]="loginForm.invalid">
+
+            Continue Login
+
+          </button>
+
+        </form>
+
+        <!-- REGISTER LINK -->
+
+        <a
+          routerLink="/auth/register"
+          class="task-list">
+
+          Create New Account
+
+        </a>
+
+        <!-- ERROR MESSAGE -->
+
+        <div
+          *ngIf="errorMessage"
+          class="error error-msg">
+
+          <p>{{ errorMessage }}</p>
+
+        </div>
+
       </div>
+
     </div>
 
-    <div class="button-group">
-      <button type="submit">Login</button>
-    </div>
-  </form>
-
-  <div class="register-link">
-    <p>
-      Not registered yet?
-      <a routerLink="/auth/registration">Create an account</a>
-    </p>
   </div>
 
-  <div class="success-message" *ngIf="successMessage">
-    {{ successMessage }}
-  </div>
-
-  <div class="error-message" *ngIf="errorMessage">
-    {{ errorMessage }}
-  </div>
 </div>

@@ -1,106 +1,131 @@
 package com.edutech.progressive.service.impl;
 
-import com.edutech.progressive.entity.Cricketer;
+ 
+ 
 import com.edutech.progressive.entity.Team;
+ 
 import com.edutech.progressive.exception.TeamAlreadyExistsException;
+ 
 import com.edutech.progressive.exception.TeamDoesNotExistException;
-import com.edutech.progressive.repository.CricketerRepository;
-import com.edutech.progressive.repository.MatchRepository;
-import com.edutech.progressive.repository.TeamRepository;
-import com.edutech.progressive.repository.TicketBookingRepository;
-import com.edutech.progressive.repository.VoteRepository;
+ 
+import com.edutech.progressive.repository.*;
+ 
 import com.edutech.progressive.service.TeamService;
-
+ 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
+ 
 import org.springframework.stereotype.Service;
-
+ 
 import java.sql.SQLException;
-import java.util.Collections;
+ 
+import java.util.Comparator;
+ 
 import java.util.List;
+ 
+import java.util.Optional;
 
+import javax.persistence.EntityNotFoundException;
+ 
 @Service
-@Primary
-public class TeamServiceImplJpa implements TeamService {
-
-    @Autowired
+ 
+public class TeamServiceImplJpa  implements TeamService {
+ 
     private TeamRepository teamRepository;
-
     @Autowired
-    private MatchRepository matchRepository;
-
-    @Autowired
+ 
     private CricketerRepository cricketerRepository;
-
     @Autowired
+ 
+    private MatchRepository matchRepository;
+    @Autowired
+ 
     private VoteRepository voteRepository;
-
-    @Autowired
+      @Autowired
+ 
     private TicketBookingRepository ticketBookingRepository;
-
-    public TeamServiceImplJpa() {
-    }
-
+    @Autowired
+ 
     public TeamServiceImplJpa(TeamRepository teamRepository) {
+ 
         this.teamRepository = teamRepository;
+ 
     }
-
+    @Override
+ 
     public List<Team> getAllTeams() throws SQLException {
+ 
         return teamRepository.findAll();
+ 
     }
-
+    @Override
+ 
     public int addTeam(Team team) throws SQLException {
-        Team existingTeam = teamRepository.findByTeamName(team.getTeamName());
-        if (existingTeam != null) {
-            throw new TeamAlreadyExistsException("Team already exists with name: " + team.getTeamName());
+        Optional<Team> t = teamRepository.findByTeamName(team.getTeamName());
+        if(t.isPresent()){
+ 
+            throw new TeamAlreadyExistsException("Team with same name exists");
+ 
         }
+ 
         return teamRepository.save(team).getTeamId();
+ 
     }
-
+    @Override
+ 
     public List<Team> getAllTeamsSortedByName() throws SQLException {
-        List<Team> teams = teamRepository.findAll();
-        Collections.sort(teams);
-        return teams;
+ 
+        List<Team> sortedTeam = teamRepository.findAll();
+ 
+        sortedTeam.sort(Comparator.comparing(Team::getTeamName));
+ 
+        return sortedTeam;
+ 
     }
-
+    @Override
+ 
     public Team getTeamById(int teamId) throws SQLException {
-        Team team = teamRepository.findByTeamId(teamId);
-        if (team == null) {
-            throw new TeamDoesNotExistException("Team with id: " + teamId + " does not exist");
+ 
+        if(teamRepository.findByTeamId(teamId) == null){
+ 
+            throw new TeamDoesNotExistException("Team does not exist");
+ 
         }
-        return team;
+ 
+        return teamRepository.findByTeamId(teamId).orElse(null);
+ 
     }
+    @Override
+ 
+    public void updateTeam(Team team) throws SQLException {
+        // Team current=teamRepository.findByTeamId(team.getTeamId()).orElseThrow();
+        // if(current==null)
+        // {
+        //     throw new EntityNotFoundException("Team not found");
+        // }
 
-    public void updateTeam(Team team, int teamId) throws SQLException {
-        Team existingTeam = teamRepository.findByTeamId(teamId);
-        if (existingTeam == null) {
-            throw new TeamDoesNotExistException("Team with id: " + teamId + " does not exist");
-        }
-
-        Team teamWithSameName = teamRepository.findByTeamName(team.getTeamName());
-        if (teamWithSameName != null && teamWithSameName.getTeamId() != teamId) {
-            throw new TeamAlreadyExistsException("Team already exists with name: " + team.getTeamName());
-        }
-
-        existingTeam.setTeamName(team.getTeamName());
-        existingTeam.setLocation(team.getLocation());
-        existingTeam.setEstablishmentYear(team.getEstablishmentYear());
-        existingTeam.setOwnerName(team.getOwnerName());
-
-        teamRepository.save(existingTeam);
+        // Team existingTeam=teamRepository.findByTeamName(team.getTeamName()).orElseThrow();
+        // if(existingTeam!=null && existingTeam.getTeamId()!=team.getTeamId()){
+ 
+        //     throw new TeamAlreadyExistsException("Team with same name exists");
+ 
+        // }
+        teamRepository.save(team);
+ 
     }
-
+    @Override
+ 
     public void deleteTeam(int teamId) throws SQLException {
+ 
         voteRepository.deleteByTeamId(teamId);
-
-        List<Cricketer> cricketers = cricketerRepository.findByTeam_TeamId(teamId);
-        for (Cricketer cricketer : cricketers) {
-            voteRepository.deleteByCricketerId(cricketer.getCricketerId());
-        }
-
+ 
         ticketBookingRepository.deleteByTeamId(teamId);
+ 
         matchRepository.deleteByTeamId(teamId);
+ 
         cricketerRepository.deleteByTeamId(teamId);
+ 
         teamRepository.deleteById(teamId);
+ 
     }
+ 
 }

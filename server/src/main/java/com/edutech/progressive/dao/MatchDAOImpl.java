@@ -1,19 +1,18 @@
 package com.edutech.progressive.dao;
 
-import java.sql.Statement;
-import java.sql.Connection;
-// import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.edutech.progressive.config.DatabaseConnectionManager;
+
 import com.edutech.progressive.entity.Match;
 
-// @Repository
+import java.sql.*;
+
+import java.util.ArrayList;
+
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
 
 public class MatchDAOImpl implements MatchDAO {
 
@@ -316,3 +315,4 @@ public class MatchDAOImpl implements MatchDAO {
     }
 
 }
+ 

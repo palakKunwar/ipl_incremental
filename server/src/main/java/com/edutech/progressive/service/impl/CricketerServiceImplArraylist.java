@@ -9,7 +9,6 @@ import com.edutech.progressive.service.CricketerService;
 
 public class CricketerServiceImplArraylist implements CricketerService  {
     List<Cricketer> cricketers=new ArrayList<>();
-    
     @Override
     public List<Cricketer> getAllCricketers() {
         return cricketers;
@@ -32,5 +31,8 @@ public class CricketerServiceImplArraylist implements CricketerService  {
    {
         cricketers=new ArrayList<>();
    }
+
+
+    
 
 }

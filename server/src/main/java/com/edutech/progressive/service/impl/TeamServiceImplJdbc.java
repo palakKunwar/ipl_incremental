@@ -1,62 +1,149 @@
 package com.edutech.progressive.service.impl;
 
 import java.sql.SQLException;
-import java.util.Collection;
+
 import java.util.Collections;
-import java.util.Comparator;
+
 import java.util.List;
+ 
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.springframework.stereotype.Service;
 
 import com.edutech.progressive.dao.TeamDAO;
+
 import com.edutech.progressive.entity.Team;
+
 import com.edutech.progressive.service.TeamService;
 
-@Service 
-public class TeamServiceImplJdbc implements TeamService {
+@Service("teamServiceImplJdbc")
 
-    public TeamServiceImplJdbc() {
-    }
-    
-   TeamDAO teamDAO;
-    public TeamServiceImplJdbc(TeamDAO teamDAO) {
+public class TeamServiceImplJdbc  implements TeamService{
+
+    private TeamDAO teamDAO;
+
+ 
+    public TeamServiceImplJdbc(@Qualifier("teamDAOImpl") TeamDAO teamDAO) {
+
         this.teamDAO = teamDAO;
+
     }
 
     @Override
-    public List<Team> getAllTeams()throws SQLException {
-        return teamDAO.getAllTeams();
+
+    public List<Team> getAllTeams() throws SQLException{
+
+        try{
+
+            return teamDAO.getAllTeams();
+
+        }
+
+        catch(SQLException e)
+
+        {
+
+            throw e;
+
+        }
+
+        finally{
+
+        }
+
     }
 
     @Override
-    public int addTeam(Team team) throws SQLException {
+
+    public int addTeam(Team team)throws SQLException {
+
+       try{
+
         return teamDAO.addTeam(team);
+
+       }
+
+       catch(SQLException e)
+
+       {
+
+        throw e;
+
+       }
+
     }
 
     @Override
-    public List<Team> getAllTeamsSortedByName() throws SQLException{
-        List<Team> list = teamDAO.getAllTeams();
-        // Collections.sort(list,new Comparator<Team>() {
-        //     @Override
-        //     public int compare(Team arg0, Team arg1) {
-        //         return  arg0.getTeamName().compareTo(arg1.getTeamName());
-        //     }
-        // });
-        Collections.sort(list);
-        return list;
+
+    public List<Team> getAllTeamsSortedByName()throws SQLException {
+
+        List<Team> sortTeams=teamDAO.getAllTeams();
+
+        Collections.sort(sortTeams);
+
+        return sortTeams;
 
     }
-    public Team getTeamById(int teamId) throws SQLException
-    {
+
+    // @Override
+
+    // public void emptyArrayList() throws SQLException{
+
+    // }
+
+    public Team getTeamById(int teamId)throws SQLException {
+
+        try{
+
         return teamDAO.getTeamById(teamId);
-    }
-    public void updateTeam(Team team)throws SQLException
-    {
-         teamDAO.updateTeam(team);
-    }
-    public void deleteTeam(int teamId)throws SQLException
-    {
-        teamDAO.deleteTeam(teamId);
+
+       }
+
+       catch(SQLException e)
+
+       {
+
+        throw e;
+
+       }
+
     }
 
+    public void updateTeam(Team team) throws SQLException{
+
+        try{
+
+        teamDAO.updateTeam(team);
+
+       }
+
+       catch(SQLException e)
+
+       {
+
+        throw e;
+
+       }
+
+    }
+
+    public void deleteTeam(int teamId) throws SQLException{
+
+        try{
+
+        teamDAO.deleteTeam(teamId);
+
+       }
+
+       catch(SQLException e)
+
+       {
+
+        throw e;
+
+       }
+
+    }
+ 
 }
+ 

@@ -1,72 +1,59 @@
-import { Component, OnInit, Optional } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
-
-import { AuthService } from "../../services/auth.service";
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { catchError, of, tap } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: "app-login",
-  templateUrl: "./login.component.html",
-  styleUrls: ["./login.component.scss"]
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
-  successMessage: string = "";
-  errorMessage: string = "";
+  errorMessage: string | null = null;
+  selectedRole: string | null = null;
 
   constructor(
-    private fb: FormBuilder,
+    private formBuilder: FormBuilder,
     private authService: AuthService,
-    @Optional() private router: Router
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loginForm = this.fb.group({
-      username: [
-        "",
-        [
-          Validators.required,
-          Validators.pattern(/^[a-zA-Z0-9]+$/)
-        ]
-      ],
-      password: [
-        "",
-        [
-          Validators.required,
-          Validators.pattern(/^(?=.*[A-Z])(?=.*\d).{8,}$/)
-        ]
-      ]
+    this.loginForm = this.formBuilder.group({
+      username: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+$/)]],
+      password: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
 
+  selectRole(role: string): void {
+    this.selectedRole = role;
+    this.errorMessage = null;
+  }
+
   onSubmit(): void {
-    this.successMessage = "";
-    this.errorMessage = "";
-
-    if (this.loginForm.invalid) {
-      this.errorMessage = "Please fill out all required fields correctly.";
-      this.loginForm.markAllAsTouched();
+    if (!this.selectedRole) {
+      this.errorMessage = 'Please select a login type (User or Admin).';
       return;
     }
-
-    const username = this.loginForm.value.username;
-
-    if (username === "errorUser") {
-      this.errorMessage = "Invalid username or password.";
-      return;
+    if (this.loginForm.valid) {
+      this.authService.login(this.loginForm.value).pipe(
+        tap((response) => {
+          localStorage.setItem("token", response['token']);
+          localStorage.setItem("role", response['roles']);
+          localStorage.setItem("user_id", response['userId']);
+          localStorage.setItem("email",this.loginForm.value.username);
+          this.router.navigate(["ipl"]);
+        }),
+        catchError((error: string) => {
+          this.errorMessage = 'Invalid username or password';
+          console.error("Login error:", error);
+          return of(null);
+        })
+      ).subscribe();
+    } else {
+      this.errorMessage = 'Please fill out the form correctly.';
     }
-
-    this.authService.login(this.loginForm.value).subscribe({
-      next: () => {
-        this.successMessage = "Login successful!";
-        this.errorMessage = "";
-
-        this.router.navigate(["/ipl/dashboard"]);
-      },
-      error: () => {
-        this.errorMessage = "Invalid username or password.";
-        this.successMessage = "";
-      }
-    });
   }
 }

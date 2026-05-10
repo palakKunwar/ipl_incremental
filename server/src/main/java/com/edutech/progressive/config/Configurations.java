@@ -1,5 +1,3 @@
-
-
 package com.edutech.progressive.config;
  
 import org.springframework.context.annotation.Bean;
@@ -52,5 +50,4 @@ public class Configurations {
     }
  
 }
- 
  

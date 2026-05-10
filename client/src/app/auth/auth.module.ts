@@ -1,41 +1,55 @@
 import { NgModule } from "@angular/core";
+
 import { CommonModule } from "@angular/common";
-import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
+ 
+import { AuthRoutingModule } from "./auth-routing.module";
+
 import { ReactiveFormsModule } from "@angular/forms";
 
-import { AuthRoutingModule } from "./auth-routing.module";
-import { AuthInterceptor } from "../auth.interceptors";
+import { HttpClientModule } from "@angular/common/http";
 
-import { AuthComponent } from "./auth.component";
-import { LoginComponent } from "./components/login/login.component";
-import { LogoutComponent } from "./components/logout/logout.component";
 import { RegistrationComponent } from "./components/registration/registration.component";
 
+import { LoginComponent } from "./components/login/login.component";
+
+import { RouterModule } from "@angular/router";
+
+import { LogoutComponent } from "./components/logout/logout.component";
+ 
 @NgModule({
+
   declarations: [
-    AuthComponent,
+
+    RegistrationComponent,
+
     LoginComponent,
-    LogoutComponent,
-    RegistrationComponent
+
+    LogoutComponent
+
   ],
+
   imports: [
+
     CommonModule,
+
     AuthRoutingModule,
+
     ReactiveFormsModule,
-    HttpClientModule
+
+    HttpClientModule,
+
+    RouterModule
+
   ],
-  providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    }
-  ],
+
   exports: [
-    AuthComponent,
-    LoginComponent,
-    LogoutComponent,
-    RegistrationComponent
+
+    LogoutComponent
+
   ]
+
 })
+
 export class AuthModule {}
+ 
+ 

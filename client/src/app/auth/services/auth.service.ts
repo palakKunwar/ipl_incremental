@@ -1,56 +1,82 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { Observable, tap } from "rxjs";
-
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+ 
+import { Observable } from "rxjs";
+ 
 import { User } from "../../ipl/types/User";
+ 
+import { Injectable } from "@angular/core";
+ 
 import { environment } from "../../../environments/environment.development";
-
+ 
 @Injectable({
-  providedIn: "root"
+ 
+  providedIn: "root",
+ 
 })
+ 
 export class AuthService {
-  private baseUrl = `${environment.apiUrl}`;
-
+ 
+   private loginUrl = `${environment.apiUrl}`;
+ 
+  // private loginUrl = `http://localhost:8080`;
+ 
+ 
+  httpOptions = {
+ 
+    headers: new HttpHeaders({
+ 
+      'Content-Type': 'application/json',
+ 
+      'Access-Control-Allow-Origin': '*'
+ 
+    })
+ 
+  };
+ 
   constructor(private http: HttpClient) {}
-
+ 
   login(user: Partial<User>): Observable<{ [key: string]: string }> {
-    return this.http.post<{ [key: string]: string }>(`${this.baseUrl}/user/login`, user)
-      .pipe(
-        tap((response: any) => {
-          if (response.token) {
-            localStorage.setItem("token", response.token);
-          }
-
-          if (response.roles) {
-            localStorage.setItem("role", response.roles);
-          }
-
-          if (response.userId) {
-            localStorage.setItem("userId", response.userId.toString());
-          }
-        })
-      );
+ 
+    return this.http.post<{ token: string }>(
+ 
+      `${this.loginUrl}/user/login`,
+ 
+      user,
+ 
+      this.httpOptions
+ 
+    );
+ 
   }
-
-  getToken(): string {
-    return localStorage.getItem("token") || "";
+ 
+  getToken() {
+ 
+    return localStorage.getItem("token");
+ 
   }
-
-  getRole(): string {
-    return localStorage.getItem("role") || "";
+ 
+  getRole() {
+ 
+    return localStorage.getItem("role");
+ 
   }
-
+ 
   getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.baseUrl}/users`);
+ 
+    return new Observable();
+ 
   }
+ 
+createUser(user: User): Observable<any> {
 
-  createUser(user: User): Observable<User> {
-    return this.http.post<User>(`${this.baseUrl}/user/register`, user);
-  }
+  return this.http.post(
+    `${this.loginUrl}/user/register`,
+    user,
+    { responseType: 'text' as 'json' }
+  );
 
-  logout(): void {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("userId");
-  }
 }
+ 
+}
+
+ 

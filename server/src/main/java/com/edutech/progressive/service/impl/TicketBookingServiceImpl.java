@@ -1,6 +1,5 @@
 package com.edutech.progressive.service.impl;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,34 +7,32 @@ import org.springframework.stereotype.Service;
 
 import com.edutech.progressive.entity.TicketBooking;
 import com.edutech.progressive.repository.TicketBookingRepository;
+import com.edutech.progressive.service.TicketBookingService;
 
 @Service
-public class TicketBookingServiceImpl {
+public class TicketBookingServiceImpl implements TicketBookingService{
 
     @Autowired
     private TicketBookingRepository ticketBookingRepository;
 
-    public TicketBookingServiceImpl() {
-    }
-
-    public TicketBookingServiceImpl(TicketBookingRepository ticketBookingRepository) {
-        this.ticketBookingRepository = ticketBookingRepository;
-    }
-
-    public List<TicketBooking> getAllTicketBookings() throws SQLException {
+    @Override
+    public List<TicketBooking> getAllTicketBookings() {
         return ticketBookingRepository.findAll();
     }
 
-    public int createBooking(TicketBooking ticketBooking) throws SQLException {
-        TicketBooking savedBooking = ticketBookingRepository.save(ticketBooking);
-        return savedBooking.getBookingId();
+    @Override
+    public int createBooking(TicketBooking ticketBooking) {
+        return ticketBookingRepository.save(ticketBooking).getBookingId();
     }
 
-    public void cancelBooking(int bookingId) throws SQLException {
+    @Override
+    public void cancelBooking(int bookingId) {
         ticketBookingRepository.deleteById(bookingId);
     }
 
-    public List<TicketBooking> getBookingsByUserEmail(String email) throws SQLException {
+    @Override
+    public List<TicketBooking> getBookingsByUserEmail(String email) {
         return ticketBookingRepository.findByEmail(email);
     }
+
 }

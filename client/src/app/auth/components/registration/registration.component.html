@@ -1,125 +1,331 @@
-<!-- <div class="registration-form-container">
-  <h2>Registration</h2>
+<div class="register-page">
 
-  <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="fullName">Full Name</label>
-      <input id="fullName" type="text" formControlName="fullName" />
-      <div class="validation-error" *ngIf="registrationForm.get('fullName')?.invalid && registrationForm.get('fullName')?.touched">
-        Full Name is required.
+  <div class="bg-overlay"></div>
+
+  <div class="register-layout">
+
+    <!-- LEFT SECTION -->
+
+    <div class="intro-panel">
+
+      <div class="intro-content">
+
+        <div class="intro-badge">
+          CREATE YOUR PROFILE
+        </div>
+
+        <h1 class="intro-title">
+          Join The<br />
+          <span class="highlight">Ultimate Cricket Hub</span>
+        </h1>
+
+        <p class="intro-desc">
+          Create your personal sports account to access premium cricket features, live tournament updates and digital fan experiences.
+        </p>
+
+        <div class="stats-wrapper">
+
+          <div class="stat-card">
+            <h3>24+</h3>
+            <p>Teams Managed</p>
+          </div>
+
+          <div class="stat-card">
+            <h3>150K+</h3>
+            <p>Active Fans</p>
+          </div>
+
+          <div class="stat-card">
+            <h3>98%</h3>
+            <p>User Satisfaction</p>
+          </div>
+
+        </div>
+
+        <div class="intro-features">
+
+          <div class="feature-item">
+            🏏 Personalized Cricket Dashboard
+          </div>
+
+          <div class="feature-item">
+            📊 Match Statistics & Insights
+          </div>
+
+          <div class="feature-item">
+            🎟️ Quick Match Ticket Access
+          </div>
+
+        </div>
+
       </div>
+
     </div>
 
-    <div class="form-group">
-      <label for="username">Username</label>
-      <input id="username" type="text" formControlName="username" />
-      <div class="validation-error" *ngIf="registrationForm.get('username')?.invalid && registrationForm.get('username')?.touched">
-        Username is required and should not contain special characters.
+    <!-- RIGHT SECTION -->
+
+    <div class="register-card-wrapper">
+
+      <div class="register-form-container">
+
+        <div class="form-top">
+
+          <h2 class="card-title">
+            Create Account
+          </h2>
+
+          <p class="form-subtitle">
+            Register to continue your cricket experience
+          </p>
+
+        </div>
+
+        <form
+          (ngSubmit)="onSubmit()"
+          [formGroup]="registrationForm"
+          class="reg-form">
+
+          <!-- FULL NAME -->
+
+          <div class="form-group">
+
+            <label for="fullName">
+              Full Name
+            </label>
+
+            <input
+              type="text"
+              id="fullName"
+              formControlName="fullName"
+              placeholder="Your full name" />
+
+            <div
+              *ngIf="registrationForm.get('fullName')?.invalid && registrationForm.get('fullName')?.touched"
+              class="error">
+
+              <small *ngIf="registrationForm.get('fullName')?.hasError('required')">
+                Full Name is required.
+              </small>
+
+              <small *ngIf="registrationForm.get('fullName')?.hasError('pattern')">
+                Only letters are allowed.
+              </small>
+
+            </div>
+
+          </div>
+
+          <!-- USERNAME -->
+
+          <div class="form-group">
+
+            <label for="username">
+              Username
+            </label>
+
+            <input
+              type="text"
+              id="username"
+              formControlName="username"
+              placeholder="Choose username" />
+
+            <div
+              *ngIf="registrationForm.get('username')?.invalid && registrationForm.get('username')?.touched"
+              class="error">
+
+              <small *ngIf="registrationForm.get('username')?.hasError('required')">
+                Username is required.
+              </small>
+
+              <small *ngIf="registrationForm.get('username')?.hasError('pattern')">
+                Only letters and numbers allowed.
+              </small>
+
+            </div>
+
+          </div>
+
+          <!-- EMAIL -->
+
+          <div class="form-group">
+
+            <label for="email">
+              Email Address
+            </label>
+
+            <input
+              type="email"
+              id="email"
+              formControlName="email"
+              placeholder="Enter email address" />
+
+            <div
+              *ngIf="registrationForm.get('email')?.invalid && registrationForm.get('email')?.touched"
+              class="error">
+
+              <small *ngIf="registrationForm.get('email')?.hasError('required')">
+                Email is required.
+              </small>
+
+              <small *ngIf="registrationForm.get('email')?.hasError('email')">
+                Enter valid email address.
+              </small>
+
+            </div>
+
+          </div>
+
+          <!-- PASSWORD -->
+
+          <div class="form-group">
+
+            <label for="password">
+              Password
+            </label>
+
+            <input
+              type="password"
+              id="password"
+              formControlName="password"
+              placeholder="Minimum 8 characters" />
+
+            <div
+              *ngIf="registrationForm.get('password')?.invalid && registrationForm.get('password')?.touched"
+              class="error">
+
+              <small *ngIf="registrationForm.get('password')?.hasError('required')">
+                Password is required.
+              </small>
+
+              <small *ngIf="registrationForm.get('password')?.hasError('minlength')">
+                Minimum 8 characters required.
+              </small>
+
+            </div>
+
+          </div>
+
+          <!-- CONFIRM PASSWORD -->
+
+          <div class="form-group">
+
+            <label for="confirmPassword">
+              Confirm Password
+            </label>
+
+            <input
+              type="password"
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              placeholder="Confirm password" />
+
+            <div
+              *ngIf="registrationForm.get('confirmPassword')?.touched && registrationForm.get('confirmPassword')?.invalid"
+              class="error">
+
+              <small *ngIf="registrationForm.get('confirmPassword')?.hasError('required')">
+                Confirm Password is required.
+              </small>
+
+            </div>
+
+            <div
+              *ngIf="registrationForm.errors?.['passwordMismatch'] && registrationForm.get('confirmPassword')?.touched"
+              class="error">
+
+              <small>
+                Passwords do not match.
+              </small>
+
+            </div>
+
+          </div>
+
+          <!-- ROLE -->
+
+          <div class="form-group">
+
+            <label for="role">
+              Select Role
+            </label>
+
+            <select
+              id="role"
+              formControlName="role">
+
+              <option value="">
+                Choose role
+              </option>
+
+              <option value="USER">
+                User
+              </option>
+
+              <option value="ADMIN">
+                Admin
+              </option>
+
+            </select>
+
+            <div
+              *ngIf="registrationForm.get('role')?.invalid && registrationForm.get('role')?.touched"
+              class="error">
+
+              <small *ngIf="registrationForm.get('role')?.hasError('required')">
+                Role is required.
+              </small>
+
+            </div>
+
+          </div>
+
+          <!-- BUTTON -->
+
+          <button
+            type="submit"
+            class="submit-btn"
+            [disabled]="registrationForm.invalid">
+
+            Register Now
+
+          </button>
+
+          <!-- SUCCESS -->
+
+          <div
+            *ngIf="successMessage"
+            class="success">
+
+            <p>{{ successMessage }}</p>
+
+          </div>
+
+          <!-- ERROR -->
+
+          <div
+            *ngIf="errorMessage"
+            class="error-msg">
+
+            <p>{{ errorMessage }}</p>
+
+          </div>
+
+          <!-- LOGIN -->
+
+          <a
+            routerLink="/auth/login"
+            class="task-list">
+
+            Already registered? Sign In
+
+          </a>
+
+        </form>
+
       </div>
+
     </div>
 
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input id="email" type="email" formControlName="email" />
-      <div class="validation-error" *ngIf="registrationForm.get('email')?.invalid && registrationForm.get('email')?.touched">
-        Please enter a valid email address.
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input id="password" type="password" formControlName="password" />
-      <div class="validation-error" *ngIf="registrationForm.get('password')?.invalid && registrationForm.get('password')?.touched">
-        Password must be at least 8 characters and contain one capital letter and one number.
-      </div>
-    </div>
-
-    <div class="button-group">
-      <button type="submit">Register</button>
-      <button type="button" (click)="resetForm()">Reset</button>
-    </div>
-  </form>
-
-  <div class="success-message" *ngIf="successMessage">
-    {{ successMessage }}
   </div>
 
-  <div class="error-message" *ngIf="errorMessage">
-    {{ errorMessage }}
-  </div>
-</div> -->
-
-
-<div class="registration-form-container">
-  <h2>Registration</h2>
-
-  <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="username">Username:</label>
-      <input id="username" type="text" formControlName="username" />
-      <div
-        class="validation-error"
-        *ngIf="registrationForm.get('username')?.invalid && registrationForm.get('username')?.touched"
-      >
-        Username is required and should not contain special characters.
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="password">Password:</label>
-      <input id="password" type="password" formControlName="password" />
-      <div
-        class="validation-error"
-        *ngIf="registrationForm.get('password')?.invalid && registrationForm.get('password')?.touched"
-      >
-        Password must be at least 8 characters and contain one capital letter and one number.
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="fullName">Full Name:</label>
-      <input id="fullName" type="text" formControlName="fullName" />
-      <div
-        class="validation-error"
-        *ngIf="registrationForm.get('fullName')?.invalid && registrationForm.get('fullName')?.touched"
-      >
-        Full Name is required.
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="email">Email:</label>
-      <input id="email" type="email" formControlName="email" />
-      <div
-        class="validation-error"
-        *ngIf="registrationForm.get('email')?.invalid && registrationForm.get('email')?.touched"
-      >
-        Please enter a valid email address.
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="role">Role:</label>
-      <select id="role" formControlName="role">
-        <option value="USER">User</option>
-        <option value="ADMIN">Admin</option>
-      </select>
-    </div>
-
-    <div class="button-group">
-      <button type="submit">Create User</button>
-    </div>
-  </form>
-
-  <div class="success-message" *ngIf="successMessage">
-    {{ successMessage }}
-  </div>
-
-  <div class="error-message" *ngIf="errorMessage">
-    {{ errorMessage }}
-  </div>
-
-  <div class="login-link">
-    <a routerLink="/auth/login">Login</a>
-  </div>
 </div>

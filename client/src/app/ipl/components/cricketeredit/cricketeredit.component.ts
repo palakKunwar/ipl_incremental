@@ -1,155 +1,118 @@
+import { HttpErrorResponse } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormGroup, FormBuilder, Validators } from "@angular/forms";
+import { IplService } from "../../services/ipl.service";
 import { Cricketer } from "../../types/Cricketer";
 import { Team } from "../../types/Team";
+import { ActivatedRoute, Router } from "@angular/router";
+
+const ALPHA_PATTERN = /^[a-zA-Z\s]+$/;
 
 @Component({
-  selector: "app-cricketer-edit",
-  templateUrl: "./cricketeredit.component.html",
-  styleUrls: ["./cricketeredit.component.scss"]
+  selector: 'app-cricketeredit',
+  templateUrl: './cricketeredit.component.html',
+  styleUrls: ['./cricketeredit.component.scss'],
 })
 export class CricketerEditComponent implements OnInit {
-  cricketerForm: FormGroup;
+  cricketerForm!: FormGroup;
   cricketer: Cricketer | null = null;
-  teams: Team[] = [];
-
-  cricketerId: number = 0;
-
   successMessage: string | null = null;
   errorMessage: string | null = null;
+  teams: Team[] = [];
+  cricketerId!: number;
+  roles = ['Batsman', 'Bowler', 'All-Rounder', 'Wicket-Keeper'];
 
   constructor(
     private formBuilder: FormBuilder,
     private iplService: IplService,
     private route: ActivatedRoute
-  ) {
+  ) {}
+
+  ngOnInit(): void {
     this.cricketerForm = this.formBuilder.group({
-      teamId: ["", Validators.required],
-      cricketerName: ["", [Validators.required, Validators.pattern(/^[a-zA-Z0-9 ]+$/)]],
-      age: ["", [Validators.required, Validators.min(18)]],
-      nationality: ["", Validators.required],
-      experience: ["", [Validators.required, Validators.min(0)]],
-      role: ["", Validators.required],
-      totalRuns: ["", [Validators.required, Validators.min(0)]],
-      totalWickets: ["", [Validators.required, Validators.min(0)]]
+      team: [null, Validators.required],
+      cricketerName: ['', [Validators.required, Validators.pattern(ALPHA_PATTERN)]],
+      age: [null, [Validators.required, Validators.min(18)]],
+      nationality: ['', [Validators.required, Validators.pattern(ALPHA_PATTERN)]],
+      experience: [null, [Validators.required, Validators.min(0)]],
+      role: ['', Validators.required],
+      totalRuns: [null, [Validators.min(0)]],
+      totalWickets: [null, [Validators.min(0)]],
+    });
+    this.route.paramMap.subscribe(paramMap => {
+      const id = Number(paramMap.get('cricketerId'));
+      this.cricketerId = id;
+      if (!Number.isFinite(id)) {
+        this.errorMessage = 'Invalid cricketer id in route';
+        return;
+      }
+      this.loadTeamsAndCricketerDetails(id);
     });
   }
 
-  ngOnInit(): void {
-    const routeId =
-      this.route.snapshot.paramMap.get("cricketerId") ||
-      this.route.snapshot.paramMap.get("id");
-
-    this.cricketerId = Number(routeId);
-
-    this.loadTeams();
-
-    if (this.cricketerId) {
-      this.loadCricketerDetails(this.cricketerId);
-    }
+  blockNumbers(event: KeyboardEvent): void {
+    if (/[0-9]/.test(event.key)) event.preventDefault();
   }
 
-  loadTeams(): void {
+  loadTeamsAndCricketerDetails(cricketerId: number): void {
     this.iplService.getAllTeams().subscribe({
-      next: (teams: Team[]) => {
+      next: (teams) => {
         this.teams = teams;
+        this.loadCricketerDetails(cricketerId);
       },
-      error: () => {
-        this.teams = [];
-      }
+      error: (error) => console.error('Error loading teams:', error)
     });
   }
 
   loadCricketerDetails(cricketerId: number): void {
     this.iplService.getCricketerById(cricketerId).subscribe({
-      next: (cricketer: Cricketer) => {
-        this.cricketer = cricketer;
-
-        const teamId =
-          cricketer.team?.teamId ||
-          cricketer.teamId ||
-          "";
-
+      next: (response) => {
+        const selectedTeam = this.teams.find(team => team.teamId === response.team.teamId);
+        this.cricketer = response;
         this.cricketerForm.patchValue({
-          teamId: teamId,
-          cricketerName: cricketer.cricketerName,
-          age: cricketer.age,
-          nationality: cricketer.nationality,
-          experience: cricketer.experience,
-          role: cricketer.role,
-          totalRuns: cricketer.totalRuns,
-          totalWickets: cricketer.totalWickets
+          team: selectedTeam,
+          cricketerName: response.cricketerName,
+          age: response.age,
+          nationality: response.nationality,
+          experience: response.experience,
+          role: response.role,
+          totalRuns: response.totalRuns,
+          totalWickets: response.totalWickets
         });
       },
-      error: () => {
-        this.errorMessage = "Unable to load cricketer details.";
-        this.successMessage = null;
-      }
+      error: (error) => this.handleError(error)
     });
   }
 
   onSubmit(): void {
-    this.successMessage = null;
-    this.errorMessage = null;
-
-    if (this.cricketerForm.invalid) {
-      this.errorMessage = "Please fill out all required fields correctly.";
-      this.cricketerForm.markAllAsTouched();
-      return;
+    if (this.cricketerForm.valid) {
+      const updatedCricketer: Cricketer = {
+        cricketerId: this.cricketerId,
+        team: this.cricketerForm.value.team,
+        cricketerName: this.cricketerForm.value.cricketerName,
+        age: this.cricketerForm.value.age,
+        nationality: this.cricketerForm.value.nationality,
+        experience: this.cricketerForm.value.experience,
+        role: this.cricketerForm.value.role,
+        totalRuns: this.cricketerForm.value.totalRuns,
+        totalWickets: this.cricketerForm.value.totalWickets,
+        displayInfo: function (): void {}
+      };
+      this.iplService.updateCricketer(updatedCricketer).subscribe({
+        next: (response) => {
+          this.cricketer = response;
+          this.errorMessage = null;
+          this.successMessage = 'Cricketer updated successfully!';
+        },
+        error: (error) => this.handleError(error)
+      });
     }
-
-    const value = this.cricketerForm.value;
-
-    const selectedTeam = this.teams.find(
-      (team: Team) => team.teamId === Number(value.teamId)
-    );
-
-    if (!selectedTeam) {
-      this.errorMessage = "Please fill out all required fields correctly.";
-      return;
-    }
-
-    const updatedCricketer = new Cricketer(
-      this.cricketerId,
-      value.cricketerName,
-      value.age,
-      value.nationality,
-      value.experience,
-      value.role,
-      value.totalRuns,
-      value.totalWickets,
-      selectedTeam
-    );
-
-    this.iplService.updateCricketer(updatedCricketer).subscribe({
-      next: (response: Cricketer) => {
-        this.cricketer = response;
-        this.successMessage = "Cricketer updated successfully!";
-        this.errorMessage = null;
-      },
-      error: () => {
-        this.errorMessage = "Unable to update cricketer.";
-        this.successMessage = null;
-      }
-    });
   }
 
-  resetForm(): void {
-    this.cricketerForm.reset({
-      teamId: "",
-      cricketerName: "",
-      age: "",
-      nationality: "",
-      experience: "",
-      role: "",
-      totalRuns: "",
-      totalWickets: ""
-    });
-
+  private handleError(error: HttpErrorResponse): void {
+    this.errorMessage = error.status === 400
+      ? 'Bad request. Please check your input.'
+      : `Error: ${error.status} ${error.message}`;
     this.successMessage = null;
-    this.errorMessage = null;
-    this.cricketer = null;
   }
 }
-import { ActivatedRoute } from "@angular/router";
-import { IplService } from "../../services/ipl.service";

@@ -1,81 +1,58 @@
-import { Component } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { IplService } from "../../services/ipl.service";
-import { Team } from "../../types/Team";
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { IplService } from '../../services/ipl.service';
+import { Team } from '../../types/Team';
+
+const ALPHA_PATTERN = /^[a-zA-Z\s]+$/;
 
 @Component({
-  selector: "app-team-create",
-  templateUrl: "./teamcreate.component.html",
-  styleUrls: ["./teamcreate.component.scss"]
+  selector: 'app-teamcreate',
+  templateUrl: './teamcreate.component.html',
+  styleUrls: ['./teamcreate.component.scss']
 })
-export class TeamCreateComponent {
-  teamForm: FormGroup;
+export class TeamCreateComponent implements OnInit {
+  teamForm!: FormGroup;
   successMessage: string | null = null;
   errorMessage: string | null = null;
   currentYear: number = new Date().getFullYear();
   team: Team | null = null;
 
-  constructor(private fb: FormBuilder, private iplService: IplService) {
-    this.teamForm = this.fb.group({
-      teamName: ["", [Validators.required, Validators.pattern(/^[a-zA-Z0-9 ]+$/)]],
-      location: ["", Validators.required],
-      ownerName: ["", [Validators.required, Validators.minLength(2)]],
-      establishmentYear: [
-        "",
-        [
-          Validators.required,
-          Validators.min(1900),
-          Validators.max(this.currentYear)
-        ]
-      ]
+  constructor(private formBuilder: FormBuilder, private iplService: IplService) {}
+
+  ngOnInit(): void {
+    this.teamForm = this.formBuilder.group({
+      teamName: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9\s]+$/)]],
+      location: ['', [Validators.required, Validators.pattern(ALPHA_PATTERN)]],
+      ownerName: ['', [Validators.required, Validators.minLength(2), Validators.pattern(ALPHA_PATTERN)]],
+      establishmentYear: [null, [Validators.required, Validators.min(1900), Validators.max(this.currentYear)]]
     });
+  }
+
+  blockNumbers(event: KeyboardEvent): void {
+    if (/[0-9]/.test(event.key)) event.preventDefault();
   }
 
   onSubmit(): void {
-    this.successMessage = null;
-    this.errorMessage = null;
-
-    if (this.teamForm.invalid) {
-      this.errorMessage = "Please fill out all required fields correctly.";
-      this.successMessage = null;
-      this.teamForm.markAllAsTouched();
-      return;
+    if (this.teamForm.valid) {
+      this.iplService.addTeam(this.teamForm.value).subscribe(
+        (response: Team) => {
+          this.team = response;
+          this.successMessage = 'Team created successfully!';
+          this.errorMessage = null;
+          this.teamForm.reset();
+        },
+        (error: HttpErrorResponse) => { this.handleError(error); }
+      );
+    } else {
+      this.errorMessage = 'Please fill out all required fields correctly.';
     }
-
-    const value = this.teamForm.value;
-
-    this.team = new Team(
-      0,
-      value.teamName,
-      value.location,
-      value.ownerName,
-      value.establishmentYear
-    );
-
-    this.iplService.addTeam(this.team).subscribe({
-      next: () => {
-        this.successMessage = "Team created successfully!";
-        this.errorMessage = null;
-        this.resetForm();
-        this.successMessage = "Team created successfully!";
-        this.errorMessage = null;
-      },
-      error: (error) => {
-        this.errorMessage =
-          error?.error?.message || "Please fill out all required fields correctly.";
-        this.successMessage = null;
-      }
-    });
   }
 
-  resetForm(): void {
-    this.teamForm.reset({
-      teamName: "",
-      location: "",
-      ownerName: "",
-      establishmentYear: ""
-    });
-
-    this.team = null;
+  private handleError(error: HttpErrorResponse): void {
+    this.errorMessage = error.status === 400
+      ? 'Bad request. Please check your input.'
+      : `Error: ${error.status} ${error.message}`;
+    this.successMessage = null;
   }
 }

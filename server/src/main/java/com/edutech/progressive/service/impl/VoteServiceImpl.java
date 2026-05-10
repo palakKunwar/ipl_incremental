@@ -1,6 +1,6 @@
 package com.edutech.progressive.service.impl;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,38 +9,40 @@ import org.springframework.stereotype.Service;
 
 import com.edutech.progressive.entity.Vote;
 import com.edutech.progressive.repository.VoteRepository;
-
-@Service
-public class VoteServiceImpl {
-
+import com.edutech.progressive.service.VoteService;
+@Service("voteServiceImpl")
+public class VoteServiceImpl implements VoteService {
     @Autowired
     private VoteRepository voteRepository;
-
-    public VoteServiceImpl() {
-    }
-
-    public VoteServiceImpl(VoteRepository voteRepository) {
-        this.voteRepository = voteRepository;
-    }
-
+    @Override
     public List<Vote> getAllVotes() {
         return voteRepository.findAll();
     }
 
-    public Integer createVote(Vote vote) {
-        Vote savedVote = voteRepository.save(vote);
-        return savedVote.getVoteId();
+   @Override
+public int createVote(Vote vote) {
+
+    // 🔴 Check if user already voted in this category
+    Vote existingVote = voteRepository
+            .findByEmailAndCategory(vote.getEmail(), vote.getCategory())
+            .orElse(null);
+
+    if (existingVote != null) {
+        throw new RuntimeException("You have already voted in this category");
     }
 
-    public Map<String, Long> getVotesCountOfAllCategories() {
-        Map<String, Long> categoryVotesCount = new LinkedHashMap<>();
-
-        categoryVotesCount.put("Team", voteRepository.countByCategory("Team"));
-        categoryVotesCount.put("Batsman", voteRepository.countByCategory("Batsman"));
-        categoryVotesCount.put("Bowler", voteRepository.countByCategory("Bowler"));
-        categoryVotesCount.put("All-rounder", voteRepository.countByCategory("All-rounder"));
-        categoryVotesCount.put("Wicketkeeper", voteRepository.countByCategory("Wicketkeeper"));
-
-        return categoryVotesCount;
-    }
+    // ✅ Save if not voted yet
+    return voteRepository.save(vote).getVoteId();
 }
+
+    @Override
+    public Map<String, Long> getVotesCountOfAllCategories() {
+                Map<String, Long> countsMap = new HashMap<>();
+        List<String> categories = List.of("Team", "Batsman", "Bowler", "All-rounder", "Wicketkeeper");
+        for (String category : categories) {
+            Long count = voteRepository.countByCategory(category);
+            countsMap.put(category, count);
+        }
+        return countsMap;
+    }
+    }

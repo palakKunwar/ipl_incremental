@@ -1,115 +1,68 @@
-import { Component, OnInit } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { IplService } from "../../services/ipl.service";
-import { Match } from "../../types/Match";
-import { Team } from "../../types/Team";
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { IplService } from '../../services/ipl.service';
+import { Match } from '../../types/Match';
+import { Team } from '../../types/Team';
+
+const ALPHA_PATTERN = /^[a-zA-Z\s]+$/;
 
 @Component({
-  selector: "app-match-create",
-  templateUrl: "./matchcreate.component.html",
-  styleUrls: ["./matchcreate.component.scss"]
+  selector: 'app-matchcreate',
+  templateUrl: './matchcreate.component.html',
+  styleUrls: ['./matchcreate.component.scss']
 })
 export class MatchCreateComponent implements OnInit {
-  matchForm: FormGroup;
+  matchForm!: FormGroup;
   match: Match | null = null;
-  successMessage: string = "";
-  errorMessage: string = "";
+  successMessage: string | null = null;
+  errorMessage: string | null = null;
   teams: Team[] = [];
 
-  constructor(private fb: FormBuilder, private iplService: IplService) {
-    this.matchForm = this.fb.group({
-      matchId: [null, Validators.required],
-      firstTeamId: ["", Validators.required],
-      secondTeamId: ["", Validators.required],
-      matchDate: ["", Validators.required],
-      venue: ["", Validators.required],
-      result: ["", Validators.required],
-      status: ["", Validators.required],
-      winnerTeamId: ["", Validators.required]
-    });
-  }
+  statuses = ['Pending', 'Completed', 'Abandoned', 'No Result'];
+
+  constructor(private formBuilder: FormBuilder, private iplService: IplService) {}
 
   ngOnInit(): void {
     this.loadTeams();
+    this.matchForm = this.formBuilder.group({
+      firstTeam: [null, Validators.required],
+      secondTeam: [null, Validators.required],
+      matchDate: [null, Validators.required],
+      venue: ['', [Validators.required, Validators.pattern(ALPHA_PATTERN)]],
+      result: [''],
+      status: ['', Validators.required]
+    });
   }
 
   loadTeams(): void {
-    this.iplService.getAllTeams().subscribe({
-      next: (data) => {
-        this.teams = data;
-      },
-      error: () => {
-        this.teams = [];
-      }
-    });
+    this.iplService.getAllTeams().subscribe((teams) => { this.teams = teams; });
+  }
+
+  blockNumbers(event: KeyboardEvent): void {
+    if (/[0-9]/.test(event.key)) event.preventDefault();
   }
 
   onSubmit(): void {
-    this.successMessage = "";
-    this.errorMessage = "";
-
-    if (this.matchForm.invalid) {
-      this.errorMessage = "Please fill out all required fields correctly.";
-      this.matchForm.markAllAsTouched();
-      return;
+    if (this.matchForm.valid) {
+      this.iplService.addMatch(this.matchForm.value).subscribe(
+        (response: Match) => {
+          this.match = response;
+          this.successMessage = 'Match created successfully!';
+          this.errorMessage = null;
+          this.matchForm.reset();
+        },
+        (error: HttpErrorResponse) => { this.handleError(error); }
+      );
+    } else {
+      this.errorMessage = 'Please fill out all required fields correctly.';
     }
-
-    this.addMatch();
   }
 
-  addMatch(): void {
-    const value = this.matchForm.value;
-
-    const firstTeam = this.teams.find((team) => team.teamId === Number(value.firstTeamId));
-    const secondTeam = this.teams.find((team) => team.teamId === Number(value.secondTeamId));
-    const winnerTeam = this.teams.find((team) => team.teamId === Number(value.winnerTeamId));
-
-    if (!firstTeam || !secondTeam || !winnerTeam) {
-      this.errorMessage = "Please fill out all required fields correctly.";
-      return;
-    }
-
-    this.match = new Match(
-      value.matchId,
-      firstTeam,
-      secondTeam,
-      new Date(value.matchDate),
-      value.venue,
-      value.result,
-      value.status,
-      winnerTeam
-    );
-
-    this.iplService.addMatch(this.match).subscribe({
-      next: () => {
-        this.successMessage = "Match created successfully!";
-        this.resetForm();
-        this.successMessage = "Match created successfully!";
-      },
-      error: (error) => {
-        this.handleError(error);
-      }
-    });
-  }
-
-  resetForm(): void {
-    this.matchForm.reset({
-      matchId: null,
-      firstTeamId: "",
-      secondTeamId: "",
-      matchDate: "",
-      venue: "",
-      result: "",
-      status: "",
-      winnerTeamId: ""
-    });
-
-    this.errorMessage = "";
-    this.match = null;
-  }
-
-  handleError(error: any): void {
-    this.errorMessage =
-      error?.error?.message || "Please fill out all required fields correctly.";
+  private handleError(error: HttpErrorResponse): void {
+    this.errorMessage = error.status === 400
+      ? 'Bad request. Please check your input.'
+      : `Error: ${error.status} ${error.message}`;
+    this.successMessage = null;
   }
 }

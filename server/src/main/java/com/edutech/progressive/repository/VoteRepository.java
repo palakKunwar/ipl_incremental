@@ -1,4 +1,6 @@
 package com.edutech.progressive.repository;
+import java.util.Optional;
+
 import javax.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,4 +19,5 @@ public interface VoteRepository extends JpaRepository<Vote, Integer> {
     @Transactional
     @Query("DELETE FROM Vote v WHERE v.cricketer.cricketerId = :cricketerId")
     void deleteByCricketerId(@Param("cricketerId") int cricketerId);
+    Optional<Vote> findByEmailAndCategory(String email, String category);
 }

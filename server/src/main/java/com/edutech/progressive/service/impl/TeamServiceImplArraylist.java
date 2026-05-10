@@ -1,41 +1,60 @@
 package com.edutech.progressive.service.impl;
 
 import java.util.ArrayList;
+
 import java.util.Collections;
-import java.util.Comparator;
+
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.edutech.progressive.entity.Team;
+
 import com.edutech.progressive.service.TeamService;
 
-@Service
-public class TeamServiceImplArraylist implements TeamService {
+@Service("teamServiceImplArraylist")
 
-    List<Team> list = new ArrayList<>();
+public class TeamServiceImplArraylist implements TeamService{
+ 
+     private static List<Team> lt=new ArrayList<>();
+
     @Override
-    public List<Team> getAllTeams() {
-       
-        return list;
+
+     public List<Team> getAllTeams() {
+
+        return new ArrayList<>(lt);
+
     }
 
     @Override
+
     public int addTeam(Team team) {
-        list.add(team);
-        return list.size();
+
+       lt.add(team);
+
+       return lt.size();
+
     }
+
     @Override
+
     public List<Team> getAllTeamsSortedByName() {
-    
-    Collections.sort(list);
-       return list;
+
+       List<Team> copy=new ArrayList<>(lt);
+
+       Collections.sort(copy);
+
+       return copy;
 
     }
 
-    public void emptyArrayList()
-    {
-        list = new ArrayList<>();
-    }
+    @Override
 
+    public void emptyArrayList() {
+
+       lt.clear();
+
+    }
+ 
 }
+ 
