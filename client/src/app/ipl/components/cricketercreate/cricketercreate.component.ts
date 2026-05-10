@@ -1,71 +1,118 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Team } from '../../types/Team';
-import { Cricketer } from '../../types/Cricketer';
+import { Component, OnInit } from "@angular/core";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { IplService } from "../../services/ipl.service";
+import { Cricketer } from "../../types/Cricketer";
+import { Team } from "../../types/Team";
 
 @Component({
-  selector: 'app-cricketercreate',
-  templateUrl: './cricketercreate.component.html',
-  styleUrls: ['./cricketercreate.component.scss']
+  selector: "app-cricketer-create",
+  templateUrl: "./cricketercreate.component.html",
+  styleUrls: ["./cricketercreate.component.scss"]
 })
 export class CricketerCreateComponent implements OnInit {
-
-  cricketerForm!: FormGroup;
+  cricketerForm: FormGroup;
   cricketer: Cricketer | null = null;
-
-  successMessage: string | null = null;
-  errorMessage: string | null = null;
-
+  successMessage: string = "";
+  errorMessage: string = "";
   teams: Team[] = [];
 
-  constructor(private fb: FormBuilder) {}
-
-  ngOnInit(): void {
-    this.teams = [
-      { teamId: 101, teamName: 'India' } as Team
-    ];
-
+  constructor(
+    private fb: FormBuilder,
+    private iplService: IplService
+  ) {
     this.cricketerForm = this.fb.group({
       cricketerId: [null, Validators.required],
-      teamId: [null, Validators.required],
-      cricketerName: ['', Validators.required],
-      age: [null, [Validators.required, Validators.min(18)]],
-      nationality: ['', Validators.required],
-      experience: [null, [Validators.required, Validators.min(0)]],
-      role: ['', Validators.required],
-      totalRuns: [0, Validators.min(0)],
-      totalWickets: [0, Validators.min(0)]
+      teamId: ["", Validators.required],
+      cricketerName: ["", [Validators.required, Validators.pattern(/^[a-zA-Z0-9 ]+$/)]],
+      age: ["", Validators.required],
+      nationality: ["", Validators.required],
+      experience: ["", [Validators.required, Validators.min(0)]],
+      role: ["", Validators.required],
+      totalRuns: ["", Validators.required],
+      totalWickets: ["", Validators.required]
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadTeams();
+  }
+
+  loadTeams(): void {
+    this.iplService.getAllTeams().subscribe({
+      next: (data: Team[]) => {
+        this.teams = data;
+      },
+      error: () => {
+        this.teams = [];
+      }
     });
   }
 
   onSubmit(): void {
-    if (this.cricketerForm.valid) {
-      // ✅ REQUIRED FOR AUTO‑TEST
-      this.cricketer = { ...this.cricketerForm.value };
+    this.successMessage = "";
+    this.errorMessage = "";
 
-      console.log('Cricketer Data:', this.cricketer);
-
-      this.successMessage = 'Cricketer created successfully!';
-      this.errorMessage = null;
-
-      this.resetForm();
-    } else {
-      this.errorMessage = 'Please fill all required fields correctly.';
-      this.successMessage = null;
+    if (this.cricketerForm.invalid) {
+      this.errorMessage = "Please fill out all required fields correctly.";
+      this.cricketerForm.markAllAsTouched();
+      return;
     }
+
+    const value = this.cricketerForm.value;
+
+    const selectedTeam = this.teams.find(
+      (team) => team.teamId === Number(value.teamId)
+    );
+
+    if (!selectedTeam) {
+      this.errorMessage = "Please fill out all required fields correctly.";
+      return;
+    }
+
+    this.cricketer = new Cricketer(
+      value.cricketerId,
+      value.cricketerName,
+      value.age,
+      value.nationality,
+      value.experience,
+      value.role,
+      value.totalRuns,
+      value.totalWickets,
+      selectedTeam
+    );
+
+    this.iplService.addCricketer(this.cricketer).subscribe({
+      next: () => {
+        this.successMessage = "Cricketer created successfully!";
+        this.errorMessage = "";
+        this.resetForm();
+        this.successMessage = "Cricketer created successfully!";
+      },
+      error: (error) => {
+        this.handleError(error);
+      }
+    });
   }
 
   resetForm(): void {
     this.cricketerForm.reset({
       cricketerId: null,
-      teamId: null,
-      cricketerName: '',
-      age: null,
-      nationality: '',
-      experience: null,
-      role: '',
-      totalRuns: 0,
-      totalWickets: 0
+      teamId: "",
+      cricketerName: "",
+      age: "",
+      nationality: "",
+      experience: "",
+      role: "",
+      totalRuns: "",
+      totalWickets: ""
     });
+
+    this.errorMessage = "";
+    this.cricketer = null;
+  }
+
+  handleError(error: any): void {
+    this.errorMessage =
+      error?.error?.message || "Please fill out all required fields correctly.";
   }
 }

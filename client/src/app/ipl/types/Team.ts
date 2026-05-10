@@ -1,6 +1,6 @@
 export class Team {
   teamId:number;
-  teamName:string;
+  teamName:string='';
   location:string;
   ownerName:string;
   establishmentYear:number;

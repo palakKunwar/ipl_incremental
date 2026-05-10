@@ -2,79 +2,80 @@
   <h2>Create Cricketer</h2>
 
   <form [formGroup]="cricketerForm" (ngSubmit)="onSubmit()">
-
-    <!-- Cricketer ID -->
-    <div>
+    <div class="form-group">
       <label for="cricketerId">Cricketer ID</label>
-      <input
-        id="cricketerId"
-        type="number"
-        formControlName="cricketerId"
-        placeholder="Enter Cricketer ID"
-      />
-      <div *ngIf="cricketerForm.get('cricketerId')?.invalid && cricketerForm.get('cricketerId')?.touched" class="error">
-        <small>Cricketer ID is required.</small>
-      </div>
+      <input id="cricketerId" type="number" formControlName="cricketerId" />
     </div>
 
-    <!-- Team ID -->
-    <div>
+    <div class="form-group">
       <label for="teamId">Team</label>
       <select id="teamId" formControlName="teamId">
-        <option value="">Select a Team</option>
+        <option value="">Select Team</option>
         <option *ngFor="let team of teams" [value]="team.teamId">
           {{ team.teamName }}
         </option>
       </select>
-      <div *ngIf="cricketerForm.get('teamId')?.invalid && cricketerForm.get('teamId')?.touched" class="error">
-        <small>Team is required.</small>
-      </div>
     </div>
 
-    <!-- Cricketer Name -->
-    <div>
+    <div class="form-group">
       <label for="cricketerName">Cricketer Name</label>
-      <input
-        id="cricketerName"
-        type="text"
-        formControlName="cricketerName"
-        placeholder="Enter Cricketer Name"
-      />
-      <div *ngIf="cricketerForm.get('cricketerName')?.invalid && cricketerForm.get('cricketerName')?.touched" class="error">
-        <small>Cricketer Name is required.</small>
+      <input id="cricketerName" type="text" formControlName="cricketerName" />
+      <div
+        class="validation-error"
+        *ngIf="cricketerForm.get('cricketerName')?.invalid && cricketerForm.get('cricketerName')?.touched"
+      >
+        Cricketer Name is required and should not contain special characters.
       </div>
     </div>
 
-    <!-- Age -->
-    <div>
+    <div class="form-group">
       <label for="age">Age</label>
-      <input id="age" type="number" formControlName="age" placeholder="Enter Age" />
-      <div *ngIf="cricketerForm.get('age')?.invalid && cricketerForm.get('age')?.touched" class="error">
-        <small *ngIf="cricketerForm.get('age')?.hasError('required')">Age is required.</small>
-        <small *ngIf="cricketerForm.get('age')?.hasError('min')">Minimum age is 18.</small>
-      </div>
+      <input id="age" type="number" formControlName="age" />
     </div>
 
-    <!-- Nationality -->
-    <div>
+    <div class="form-group">
       <label for="nationality">Nationality</label>
-      <input
-        id="nationality"
-        type="text"
-        formControlName="nationality"
-        placeholder="Enter Nationality"
-      />
-      <div *ngIf="cricketerForm.get('nationality')?.invalid && cricketerForm.get('nationality')?.touched" class="error">
-        <small>Nationality is required.</small>
+      <input id="nationality" type="text" formControlName="nationality" />
+    </div>
+
+    <div class="form-group">
+      <label for="experience">Experience</label>
+      <input id="experience" type="number" formControlName="experience" />
+      <div
+        class="validation-error"
+        *ngIf="cricketerForm.get('experience')?.invalid && cricketerForm.get('experience')?.touched"
+      >
+        Experience must be non-negative.
       </div>
     </div>
 
-    <!-- Experience -->
-    <div>
-      <label for="experience">Experience</label>
-      <input
-        id="experience"
-        type="number"
-        formControlName="experience"
-        placeholder="Enter Experience"
-      />
+    <div class="form-group">
+      <label for="role">Role</label>
+      <input id="role" type="text" formControlName="role" />
+    </div>
+
+    <div class="form-group">
+      <label for="totalRuns">Total Runs</label>
+      <input id="totalRuns" type="number" formControlName="totalRuns" />
+    </div>
+
+    <div class="form-group">
+      <label for="totalWickets">Total Wickets</label>
+      <input id="totalWickets" type="number" formControlName="totalWickets" />
+    </div>
+
+    <div class="button-group">
+      <button type="submit">Submit</button>
+      <button type="button" (click)="resetForm()">Reset</button>
+      <a routerLink="/ipl/dashboard">Dashboard</a>
+    </div>
+  </form>
+
+  <div class="success-message" *ngIf="successMessage">
+    {{ successMessage }}
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+</div>

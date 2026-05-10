@@ -1,132 +1,74 @@
-<div class="-form-container">
+<div class="match-form-container">
   <h2>Create Match</h2>
 
   <form [formGroup]="matchForm" (ngSubmit)="onSubmit()">
-
-    <!-- Match ID -->
-    <div>
+    <div class="form-group">
       <label for="matchId">Match ID</label>
-      <input
-        id="matchId"
-        type="number"
-        formControlName="matchId"
-        placeholder="Enter Match ID"
-      />
-      <div *ngIf="matchForm.get('matchId')?.invalid && matchForm.get('matchId')?.touched" class="error">
-        <small>Match ID is required.</small>
-      </div>
+      <input id="matchId" type="number" formControlName="matchId" />
     </div>
 
-    <!-- First Team ID -->
-    <div>
+    <div class="form-group">
       <label for="firstTeamId">First Team</label>
       <select id="firstTeamId" formControlName="firstTeamId">
-        <option value="">Select a Team</option>
+        <option value="">Select First Team</option>
         <option *ngFor="let team of teams" [value]="team.teamId">
           {{ team.teamName }}
         </option>
       </select>
-      <div *ngIf="matchForm.get('firstTeamId')?.invalid && matchForm.get('firstTeamId')?.touched" class="error">
-        <small>First team is required.</small>
-      </div>
     </div>
 
-    <!-- Second Team ID -->
-    <div>
+    <div class="form-group">
       <label for="secondTeamId">Second Team</label>
       <select id="secondTeamId" formControlName="secondTeamId">
-        <option value="">Select a Team</option>
+        <option value="">Select Second Team</option>
         <option *ngFor="let team of teams" [value]="team.teamId">
           {{ team.teamName }}
         </option>
       </select>
-      <div *ngIf="matchForm.get('secondTeamId')?.invalid && matchForm.get('secondTeamId')?.touched" class="error">
-        <small>Second team is required.</small>
-      </div>
     </div>
 
-    <!-- Match Date -->
-    <div>
+    <div class="form-group">
       <label for="matchDate">Match Date</label>
-      <input
-        id="matchDate"
-        type="date"
-        formControlName="matchDate"
-      />
-      <div *ngIf="matchForm.get('matchDate')?.invalid && matchForm.get('matchDate')?.touched" class="error">
-        <small>Match date is required.</small>
-      </div>
+      <input id="matchDate" type="date" formControlName="matchDate" />
     </div>
 
-    <!-- Venue -->
-    <div>
+    <div class="form-group">
       <label for="venue">Venue</label>
-      <input
-        id="venue"
-        type="text"
-        formControlName="venue"
-        placeholder="Enter Venue"
-      />
-      <div *ngIf="matchForm.get('venue')?.invalid && matchForm.get('venue')?.touched" class="error">
-        <small>Venue is required.</small>
-      </div>
+      <input id="venue" type="text" formControlName="venue" />
     </div>
 
-    <!-- Result -->
-    <div>
+    <div class="form-group">
       <label for="result">Result</label>
-      <input
-        id="result"
-        type="text"
-        formControlName="result"
-        placeholder="Enter Result"
-      />
-      <div *ngIf="matchForm.get('result')?.invalid && matchForm.get('result')?.touched" class="error">
-        <small>Result is required.</small>
-      </div>
+      <input id="result" type="text" formControlName="result" />
     </div>
 
-    <!-- Status -->
-    <div>
+    <div class="form-group">
       <label for="status">Status</label>
-      <input
-        id="status"
-        type="text"
-        formControlName="status"
-        placeholder="Enter Status"
-      />
-      <div *ngIf="matchForm.get('status')?.invalid && matchForm.get('status')?.touched" class="error">
-        <small>Status is required.</small>
-      </div>
+      <input id="status" type="text" formControlName="status" />
     </div>
 
-    <!-- Winner Team ID -->
-    <div>
+    <div class="form-group">
       <label for="winnerTeamId">Winner Team</label>
       <select id="winnerTeamId" formControlName="winnerTeamId">
-        <option value="">Select a Team</option>
+        <option value="">Select Winner Team</option>
         <option *ngFor="let team of teams" [value]="team.teamId">
           {{ team.teamName }}
         </option>
       </select>
-      <div *ngIf="matchForm.get('winnerTeamId')?.invalid && matchForm.get('winnerTeamId')?.touched" class="error">
-        <small>Winner team is required.</small>
-      </div>
     </div>
 
-    <!-- Buttons -->
-    <button type="submit" [disabled]="matchForm.invalid">Create Match</button>
-    <button type="button" (click)="resetForm()">Reset</button>
-
-    <a routerLink="/ipl" class="task-list">Dashboard</a>
+    <div class="button-group">
+      <button type="submit">Submit</button>
+      <button type="button" (click)="resetForm()">Reset</button>
+      <a routerLink="/ipl/dashboard">Dashboard</a>
+    </div>
   </form>
 
-  <!-- Messages -->
-  <div *ngIf="successMessage" class="success">
-    <p>{{ successMessage }}</p>
+  <div class="success-message" *ngIf="successMessage">
+    {{ successMessage }}
   </div>
 
-  <div *ngIf="errorMessage" class="error">
-    <p>{{ errorMessage }}</p>
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
   </div>
 </div>

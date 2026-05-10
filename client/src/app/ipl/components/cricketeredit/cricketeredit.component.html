@@ -1,0 +1,64 @@
+<div class="cricketer-edit-container">
+  <h2>Edit Cricketer</h2>
+
+  <form [formGroup]="cricketerForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="teamId">Team</label>
+      <select id="teamId" formControlName="teamId">
+        <option value="">Select Team</option>
+        <option *ngFor="let team of teams" [value]="team.teamId">
+          {{ team.teamName }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="cricketerName">Cricketer Name</label>
+      <input id="cricketerName" type="text" formControlName="cricketerName" />
+    </div>
+
+    <div class="form-group">
+      <label for="age">Age</label>
+      <input id="age" type="number" formControlName="age" />
+    </div>
+
+    <div class="form-group">
+      <label for="nationality">Nationality</label>
+      <input id="nationality" type="text" formControlName="nationality" />
+    </div>
+
+    <div class="form-group">
+      <label for="experience">Experience</label>
+      <input id="experience" type="number" formControlName="experience" />
+    </div>
+
+    <div class="form-group">
+      <label for="role">Role</label>
+      <input id="role" type="text" formControlName="role" />
+    </div>
+
+    <div class="form-group">
+      <label for="totalRuns">Total Runs</label>
+      <input id="totalRuns" type="number" formControlName="totalRuns" />
+    </div>
+
+    <div class="form-group">
+      <label for="totalWickets">Total Wickets</label>
+      <input id="totalWickets" type="number" formControlName="totalWickets" />
+    </div>
+
+    <div class="button-group">
+      <button type="submit">Update Cricketer</button>
+      <button type="button" (click)="resetForm()">Reset</button>
+      <a routerLink="/ipl/dashboard">Dashboard</a>
+    </div>
+  </form>
+
+  <div class="success-message" *ngIf="successMessage">
+    {{ successMessage }}
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+</div>

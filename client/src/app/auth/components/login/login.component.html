@@ -1,23 +1,46 @@
-<h2>Login</h2>
+<div class="login-form-container">
+  <h2>Login</h2>
 
-<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input id="username" type="text" formControlName="username" />
+      <div
+        class="validation-error"
+        *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+      >
+        Username is required and should not contain special characters.
+      </div>
+    </div>
 
-  <label>Username</label>
-  <input type="text" formControlName="username" />
-  <div *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.invalid">
-    Username should not contain special characters.
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input id="password" type="password" formControlName="password" />
+      <div
+        class="validation-error"
+        *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+      >
+        Password must be at least 8 characters and contain one capital letter and one number.
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button type="submit">Login</button>
+    </div>
+  </form>
+
+  <div class="register-link">
+    <p>
+      Not registered yet?
+      <a routerLink="/auth/registration">Create an account</a>
+    </p>
   </div>
 
-  <label>Password</label>
-  <input type="password" formControlName="password" />
-  <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
-    Password must be at least 8 characters, one capital letter and one number.
+  <div class="success-message" *ngIf="successMessage">
+    {{ successMessage }}
   </div>
 
-  <br />
-
-  <button type="submit">Login</button>
-</form>
-
-<p *ngIf="successMessage">{{ successMessage }}</p>
-<p *ngIf="errorMessage">{{ errorMessage }}</p>
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+</div>

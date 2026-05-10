@@ -1,0 +1,31 @@
+<nav class="navbar">
+  <ul class="navbar-list">
+    <li>
+      <a routerLink="/ipl/dashboard" class="nav-link app-name">IPL</a>
+    </li>
+
+    <li *ngIf="role !== 'USER'">
+      <a routerLink="/ipl/teamcreate" class="nav-link">Add New Team</a>
+    </li>
+
+    <li *ngIf="role !== 'USER'">
+      <a routerLink="/ipl/cricketercreate" class="nav-link">Add New Cricketer</a>
+    </li>
+
+    <li *ngIf="role !== 'USER'">
+      <a routerLink="/ipl/matchcreate" class="nav-link">Add New Match</a>
+    </li>
+
+    <li *ngIf="role === 'USER'">
+      <a routerLink="/ipl/vote" class="nav-link">Vote</a>
+    </li>
+
+    <li *ngIf="role === 'USER'">
+      <a routerLink="/ipl/ticketbooking" class="nav-link">Book Tickets</a>
+    </li>
+
+    <li>
+      <button type="button" class="logout-btn" (click)="logout()">Logout</button>
+    </li>
+  </ul>
+</nav>

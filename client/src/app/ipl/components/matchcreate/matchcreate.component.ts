@@ -1,73 +1,115 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Match } from '../../types/Match';
-import { Team } from '../../types/Team';
+import { Component, OnInit } from "@angular/core";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { IplService } from "../../services/ipl.service";
+import { Match } from "../../types/Match";
+import { Team } from "../../types/Team";
 
 @Component({
-  selector: 'app-matchcreate',
-  templateUrl: './matchcreate.component.html',
-  styleUrls: ['./matchcreate.component.scss']
+  selector: "app-match-create",
+  templateUrl: "./matchcreate.component.html",
+  styleUrls: ["./matchcreate.component.scss"]
 })
 export class MatchCreateComponent implements OnInit {
-
-  matchForm!: FormGroup;
+  matchForm: FormGroup;
   match: Match | null = null;
-
-  successMessage: string | null = null;
-  errorMessage: string | null = null;
-
+  successMessage: string = "";
+  errorMessage: string = "";
   teams: Team[] = [];
 
-  constructor(private fb: FormBuilder) {}
-
-  ngOnInit(): void {
-    // Dummy team data (auto‑test safe)
-    this.teams = [
-      { teamId: 1, teamName: 'CSK' } as Team,
-      { teamId: 2, teamName: 'MI' } as Team
-    ];
-
+  constructor(private fb: FormBuilder, private iplService: IplService) {
     this.matchForm = this.fb.group({
       matchId: [null, Validators.required],
-      firstTeamId: [null, Validators.required],
-      secondTeamId: [null, Validators.required],
-      matchDate: [null, Validators.required],
-      venue: ['', Validators.required],
-      result: ['', Validators.required],
-      status: ['', Validators.required],
-      winnerTeamId: [null, Validators.required]
+      firstTeamId: ["", Validators.required],
+      secondTeamId: ["", Validators.required],
+      matchDate: ["", Validators.required],
+      venue: ["", Validators.required],
+      result: ["", Validators.required],
+      status: ["", Validators.required],
+      winnerTeamId: ["", Validators.required]
     });
   }
 
-  // Form submission handler
-  onSubmit(): void {
-    if (this.matchForm.valid) {
-      // ✅ REQUIRED FOR AUTO‑TESTS
-      this.match = { ...this.matchForm.value };
-
-      console.log('Match Data:', this.match);
-
-      this.successMessage = 'Match created successfully!';
-      this.errorMessage = null;
-
-      this.resetForm();
-    } else {
-      this.errorMessage = 'Please fill out all required fields correctly.';
-      this.successMessage = null;
-    }
+  ngOnInit(): void {
+    this.loadTeams();
   }
 
-  // Reset form
+  loadTeams(): void {
+    this.iplService.getAllTeams().subscribe({
+      next: (data) => {
+        this.teams = data;
+      },
+      error: () => {
+        this.teams = [];
+      }
+    });
+  }
+
+  onSubmit(): void {
+    this.successMessage = "";
+    this.errorMessage = "";
+
+    if (this.matchForm.invalid) {
+      this.errorMessage = "Please fill out all required fields correctly.";
+      this.matchForm.markAllAsTouched();
+      return;
+    }
+
+    this.addMatch();
+  }
+
+  addMatch(): void {
+    const value = this.matchForm.value;
+
+    const firstTeam = this.teams.find((team) => team.teamId === Number(value.firstTeamId));
+    const secondTeam = this.teams.find((team) => team.teamId === Number(value.secondTeamId));
+    const winnerTeam = this.teams.find((team) => team.teamId === Number(value.winnerTeamId));
+
+    if (!firstTeam || !secondTeam || !winnerTeam) {
+      this.errorMessage = "Please fill out all required fields correctly.";
+      return;
+    }
+
+    this.match = new Match(
+      value.matchId,
+      firstTeam,
+      secondTeam,
+      new Date(value.matchDate),
+      value.venue,
+      value.result,
+      value.status,
+      winnerTeam
+    );
+
+    this.iplService.addMatch(this.match).subscribe({
+      next: () => {
+        this.successMessage = "Match created successfully!";
+        this.resetForm();
+        this.successMessage = "Match created successfully!";
+      },
+      error: (error) => {
+        this.handleError(error);
+      }
+    });
+  }
+
   resetForm(): void {
     this.matchForm.reset({
       matchId: null,
-      firstTeamId: null,
-      secondTeamId: null,
-      matchDate: null,
-      venue: '',
-      result: '',
-      status: '',
-      winnerTeamId: null
+      firstTeamId: "",
+      secondTeamId: "",
+      matchDate: "",
+      venue: "",
+      result: "",
+      status: "",
+      winnerTeamId: ""
     });
+
+    this.errorMessage = "";
+    this.match = null;
+  }
+
+  handleError(error: any): void {
+    this.errorMessage =
+      error?.error?.message || "Please fill out all required fields correctly.";
   }
 }
